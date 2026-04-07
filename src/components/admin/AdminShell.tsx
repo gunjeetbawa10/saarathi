@@ -8,6 +8,7 @@ const nav = [
   { href: "/admin/bookings", label: "Bookings" },
   { href: "/admin/customers", label: "Customers" },
   { href: "/admin/transactions", label: "Payments" },
+  { href: "/admin/coupons", label: "Coupons" },
   { href: "/admin/contacts", label: "Contact form" },
   { href: "/admin/newsletter", label: "Newsletter" },
 ] as const;

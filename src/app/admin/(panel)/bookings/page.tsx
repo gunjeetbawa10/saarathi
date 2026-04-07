@@ -56,6 +56,7 @@ export default async function AdminBookingsPage() {
               <th className="px-4 py-3">Service</th>
               <th className="px-4 py-3">When</th>
               <th className="px-4 py-3">Price</th>
+              <th className="px-4 py-3">Coupon</th>
               <th className="px-4 py-3">Status</th>
             </tr>
           </thead>
@@ -80,6 +81,15 @@ export default async function AdminBookingsPage() {
                 </td>
                 <td className="px-4 py-3 font-medium">
                   {formatGbpFromPence(b.price)}
+                  {b.discountPence > 0 && (
+                    <div className="text-xs font-normal text-ink/55">
+                      Was {formatGbpFromPence(b.subtotalPence ?? b.price + b.discountPence)} · −
+                      {formatGbpFromPence(b.discountPence)}
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-xs text-ink/70">
+                  {b.couponCode ?? "—"}
                 </td>
                 <td className="px-4 py-3">
                   <span

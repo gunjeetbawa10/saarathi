@@ -14,6 +14,7 @@ const baseFields = {
   phone: z.string().min(10, "Valid phone required"),
   address: z.string().min(8, "Please enter a full address"),
   notes: z.string().optional(),
+  couponCode: z.string().optional(),
 };
 
 function futureDateRefine<T extends z.ZodTypeAny>(schema: T) {

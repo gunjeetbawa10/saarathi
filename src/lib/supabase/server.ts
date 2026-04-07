@@ -3,7 +3,10 @@ import type { BookingRow } from "@/types/booking";
 import type { ContactSubmissionRow, NewsletterSignupRow } from "@/types/leads";
 import type { AdminCredentialRow, AdminCustomerRow } from "@/types/admin";
 import { bookingFromRow } from "@/types/booking";
+import { fromZonedTime } from "date-fns-tz";
 import { normalizeSupabaseUrl } from "@/lib/supabase/env";
+
+const BOOKING_TZ = "Europe/London";
 
 function getSupabaseUrl(): string {
   const url = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
@@ -37,6 +40,10 @@ export type InsertBookingInput = {
   price: number;
   payment_status: string;
   clerk_user_id?: string | null;
+  subtotal_pence: number;
+  discount_pence: number;
+  coupon_id?: string | null;
+  coupon_code?: string | null;
 };
 
 export async function insertBooking(data: InsertBookingInput): Promise<BookingRow> {
@@ -56,6 +63,10 @@ export async function insertBooking(data: InsertBookingInput): Promise<BookingRo
       price: data.price,
       payment_status: data.payment_status,
       clerk_user_id: data.clerk_user_id ?? null,
+      subtotal_pence: data.subtotal_pence,
+      discount_pence: data.discount_pence,
+      coupon_id: data.coupon_id ?? null,
+      coupon_code: data.coupon_code ?? null,
     })
     .select()
     .single();
@@ -84,6 +95,24 @@ export async function listBookingsDesc(limit: number): Promise<BookingRow[]> {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(limit);
+
+  if (error) throw error;
+  return (data ?? []) as BookingRow[];
+}
+
+/** Bookings whose appointment `date` falls on this calendar day in Europe/London. Excludes failed payments (slot released). */
+export async function listBookingsOnLocalCalendarDay(
+  ymd: string
+): Promise<BookingRow[]> {
+  const start = fromZonedTime(`${ymd}T00:00:00`, BOOKING_TZ);
+  const end = fromZonedTime(`${ymd}T23:59:59.999`, BOOKING_TZ);
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .gte("date", start.toISOString())
+    .lte("date", end.toISOString())
+    .neq("payment_status", "failed");
 
   if (error) throw error;
   return (data ?? []) as BookingRow[];

@@ -1,11 +1,24 @@
 import { NextResponse } from "next/server";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { auth } from "@clerk/nextjs/server";
 import { getStripe } from "@/lib/stripe";
-import { insertBooking, updateBookingStripeSession } from "@/lib/supabase/server";
+import {
+  insertBooking,
+  listBookingsOnLocalCalendarDay,
+  updateBookingStripeSession,
+} from "@/lib/supabase/server";
 import { SITE_URL } from "@/lib/constants";
 import { calculateBookingPricePence, serviceLabel } from "@/lib/booking-pricing";
+import { applyCouponCodeToSubtotal } from "@/lib/coupon-db";
+import {
+  isKnownSlotLabel,
+  occupiedSlotStartKeysFromBookings,
+  parseSlotStartKey,
+} from "@/lib/booking-slots";
 import { bookingApiSchema } from "@/validation/booking";
+
+const BOOKING_TZ = "Europe/London";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +53,34 @@ export async function POST(req: Request) {
     }
 
     const data = parsed.data;
-    const price = calculateBookingPricePence(data.service, data.propertySize);
+
+    if (!isKnownSlotLabel(data.time)) {
+      return NextResponse.json({ error: "Invalid time slot" }, { status: 400 });
+    }
+
+    const ymd = formatInTimeZone(data.date, BOOKING_TZ, "yyyy-MM-dd");
+    const dayRows = await listBookingsOnLocalCalendarDay(ymd);
+    const occupied = occupiedSlotStartKeysFromBookings(dayRows);
+    const key = parseSlotStartKey(data.time);
+    if (key && occupied.has(key)) {
+      return NextResponse.json(
+        {
+          error:
+            "That time is no longer available — please choose another slot or date.",
+        },
+        { status: 409 }
+      );
+    }
+
+    const subtotalPence = calculateBookingPricePence(data.service, data.propertySize);
+
+    const couponResult = await applyCouponCodeToSubtotal(data.couponCode, subtotalPence);
+    if (!couponResult.ok) {
+      return NextResponse.json({ error: couponResult.error }, { status: 400 });
+    }
+
+    const { finalPence, discountPence, couponId, couponCode } = couponResult.result;
+    const price = finalPence;
 
     const { userId } = await auth();
 
@@ -57,7 +97,18 @@ export async function POST(req: Request) {
       price,
       payment_status: "pending",
       clerk_user_id: userId ?? null,
+      subtotal_pence: subtotalPence,
+      discount_pence: discountPence,
+      coupon_id: couponId,
+      coupon_code: couponCode,
     });
+
+    const descParts = [
+      `${format(data.date, "d MMM yyyy")} · ${data.time}`,
+      discountPence > 0
+        ? `Subtotal ${(subtotalPence / 100).toFixed(2)} GBP · Discount −${(discountPence / 100).toFixed(2)} GBP`
+        : null,
+    ].filter(Boolean);
 
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
@@ -69,7 +120,7 @@ export async function POST(req: Request) {
             unit_amount: price,
             product_data: {
               name: `Saarathi — ${serviceLabel(data.service)}`,
-              description: `${format(data.date, "d MMM yyyy")} · ${data.time}`,
+              description: descParts.join(" · "),
             },
           },
           quantity: 1,
@@ -77,7 +128,12 @@ export async function POST(req: Request) {
       ],
       success_url: `${SITE_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/booking/cancel?id=${booking.id}`,
-      metadata: { bookingId: booking.id },
+      metadata: {
+        bookingId: booking.id,
+        subtotalPence: String(subtotalPence),
+        discountPence: String(discountPence),
+        couponCode: couponCode ?? "",
+      },
     });
 
     await updateBookingStripeSession(booking.id, session.id);

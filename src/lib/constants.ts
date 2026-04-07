@@ -9,10 +9,4 @@ export const CONTACT = {
   location: "Bangor LL57, UK",
 } as const;
 
-export const TIME_SLOTS = [
-  "08:00 – 10:00",
-  "10:00 – 12:00",
-  "12:00 – 14:00",
-  "14:00 – 16:00",
-  "16:00 – 18:00",
-] as const;
+/** Time slots are generated in `booking-slots.ts` and filtered per day via GET /api/bookings/availability. */

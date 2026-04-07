@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
+import { incrementCouponUse } from "@/lib/coupon-db";
 import { markBookingPaidIfPending } from "@/lib/supabase/server";
 import { bookingFromRow } from "@/types/booking";
 import {
@@ -42,6 +43,13 @@ export async function POST(req: Request) {
       const updated = await markBookingPaidIfPending(bookingId, session.id);
 
       if (updated) {
+        if (updated.coupon_id) {
+          try {
+            await incrementCouponUse(updated.coupon_id);
+          } catch (e) {
+            console.error("Coupon use increment failed", e);
+          }
+        }
         const booking = bookingFromRow(updated);
         try {
           await sendBookingConfirmedToCustomer(booking);

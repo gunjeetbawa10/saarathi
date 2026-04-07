@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DayPicker } from "react-day-picker";
 import { addDays, format, startOfDay } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import type { PropertySize, ServiceType } from "@/types/booking";
 import {
   bookingFormSchema,
@@ -15,7 +16,6 @@ import {
   formatGbpFromPence,
   serviceLabel,
 } from "@/lib/booking-pricing";
-import { TIME_SLOTS } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +33,8 @@ const sizes: { value: PropertySize; label: string }[] = [
   { value: "FOUR_PLUS", label: "4+ bedrooms (+£60)" },
 ];
 
+const TZ = "Europe/London";
+
 function fieldClass(err?: boolean) {
   return cn(
     "mt-1 w-full rounded-2xl border bg-white px-4 py-3 text-sm text-ink shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20",
@@ -47,6 +49,16 @@ export function BookingForm({
 }) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [slots, setSlots] = useState<string[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [couponPreview, setCouponPreview] = useState<{
+    discountPence: number;
+    finalPence: number;
+    couponCode: string | null;
+  } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponApplying, setCouponApplying] = useState(false);
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
@@ -60,6 +72,7 @@ export function BookingForm({
       phone: "",
       address: "",
       notes: "",
+      couponCode: "",
     },
   });
 
@@ -71,6 +84,88 @@ export function BookingForm({
     () => calculateBookingPricePence(service, propertySize),
     [service, propertySize]
   );
+
+  const finalPence = couponPreview?.finalPence ?? pricePence;
+  const discountPence = couponPreview?.discountPence ?? 0;
+
+  useEffect(() => {
+    setCouponPreview(null);
+    setCouponError(null);
+  }, [service, propertySize]);
+
+  async function applyCoupon() {
+    setCouponError(null);
+    setCouponApplying(true);
+    try {
+      const code = form.getValues("couponCode")?.trim();
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: code || undefined,
+          service: form.getValues("service"),
+          propertySize: form.getValues("propertySize"),
+        }),
+      });
+      const data = (await res.json()) as {
+        error?: string;
+        discountPence?: number;
+        finalPence?: number;
+        couponCode?: string | null;
+      };
+      if (!res.ok) {
+        setCouponPreview(null);
+        setCouponError(data.error ?? "Could not apply coupon");
+        return;
+      }
+      setCouponPreview({
+        discountPence: data.discountPence ?? 0,
+        finalPence: data.finalPence ?? pricePence,
+        couponCode: data.couponCode ?? null,
+      });
+    } catch {
+      setCouponPreview(null);
+      setCouponError("Network error");
+    } finally {
+      setCouponApplying(false);
+    }
+  }
+
+  useEffect(() => {
+    form.setValue("time", "");
+  }, [selectedDate, form]);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    let cancelled = false;
+    setSlotsLoading(true);
+    setSlotsError(null);
+    const ymd = formatInTimeZone(selectedDate, TZ, "yyyy-MM-dd");
+    fetch(`/api/bookings/availability?date=${encodeURIComponent(ymd)}`)
+      .then(async (res) => {
+        const data = (await res.json()) as { slots?: string[]; error?: string };
+        if (!res.ok) {
+          if (!cancelled) {
+            setSlotsError(data.error ?? "Could not load times");
+            setSlots([]);
+          }
+          return;
+        }
+        if (!cancelled) setSlots(data.slots ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSlotsError("Could not load times");
+          setSlots([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setSlotsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDate]);
 
   async function onSubmit(values: BookingFormValues) {
     setSubmitError(null);
@@ -137,6 +232,39 @@ export function BookingForm({
         </div>
 
         <div>
+          <label className="text-xs font-semibold uppercase tracking-wider text-primary/80">
+            Coupon code (optional)
+          </label>
+          <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+            <input
+              {...form.register("couponCode")}
+              className={fieldClass(false)}
+              placeholder="e.g. SPRING20"
+              autoComplete="off"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              className="shrink-0"
+              onClick={() => void applyCoupon()}
+              disabled={couponApplying}
+            >
+              {couponApplying ? "Checking…" : "Apply"}
+            </Button>
+          </div>
+          {couponError && (
+            <p className="mt-1 text-sm text-red-600" role="alert">
+              {couponError}
+            </p>
+          )}
+          {discountPence > 0 && couponPreview?.couponCode && (
+            <p className="mt-1 text-sm text-primary">
+              {couponPreview.couponCode} applied — you save {formatGbpFromPence(discountPence)}
+            </p>
+          )}
+        </div>
+
+        <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-primary/80">
             Preferred date
           </p>
@@ -166,14 +294,34 @@ export function BookingForm({
           <label className="text-xs font-semibold uppercase tracking-wider text-primary/80">
             Time slot
           </label>
-          <select {...form.register("time")} className={fieldClass(!!form.formState.errors.time)}>
-            <option value="">Select a window</option>
-            {TIME_SLOTS.map((t) => (
+          <select
+            {...form.register("time")}
+            disabled={slotsLoading || slots.length === 0}
+            className={fieldClass(!!form.formState.errors.time)}
+          >
+            <option value="">
+              {slotsLoading
+                ? "Loading available times…"
+                : slots.length === 0
+                  ? "No slots left that day"
+                  : "Select a window"}
+            </option>
+            {slots.map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>
             ))}
           </select>
+          {slotsError && (
+            <p className="mt-1 text-sm text-red-600" role="alert">
+              {slotsError}
+            </p>
+          )}
+          {form.formState.errors.time?.message && (
+            <p className="mt-1 text-sm text-red-600">
+              {String(form.formState.errors.time.message)}
+            </p>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -236,7 +384,11 @@ export function BookingForm({
           </p>
         )}
 
-        <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+        <Button
+          type="submit"
+          disabled={loading || slotsLoading || slots.length === 0}
+          className="w-full sm:w-auto"
+        >
           {loading ? "Redirecting to secure payment…" : "Continue to payment"}
         </Button>
       </div>
@@ -258,12 +410,18 @@ export function BookingForm({
             <span>Service subtotal</span>
             <span>{formatGbpFromPence(pricePence)}</span>
           </div>
+          {discountPence > 0 && (
+            <div className="mt-2 flex justify-between text-sm text-primary">
+              <span>Discount</span>
+              <span>−{formatGbpFromPence(discountPence)}</span>
+            </div>
+          )}
           <p className="mt-4 text-xs text-ink/50">
             VAT if applicable is included in your quote where required. Final
-            charge is confirmed at checkout.
+            charge is confirmed at checkout. Minimum payment after discount is 30p.
           </p>
           <p className="mt-6 font-display text-3xl text-primary">
-            {formatGbpFromPence(pricePence)}
+            {formatGbpFromPence(finalPence)}
           </p>
         </div>
       </aside>

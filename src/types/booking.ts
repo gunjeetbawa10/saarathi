@@ -43,6 +43,10 @@ export type BookingRow = {
   payment_status: string;
   stripe_session_id: string | null;
   created_at: string;
+  subtotal_pence: number | null;
+  discount_pence: number;
+  coupon_id: string | null;
+  coupon_code: string | null;
 };
 
 /** CamelCase booking used in the app (emails, admin UI). */
@@ -62,6 +66,10 @@ export type Booking = {
   paymentStatus: PaymentStatus;
   stripeSessionId: string | null;
   createdAt: Date;
+  subtotalPence: number | null;
+  discountPence: number;
+  couponId: string | null;
+  couponCode: string | null;
 };
 
 export function bookingFromRow(row: BookingRow): Booking {
@@ -81,5 +89,9 @@ export function bookingFromRow(row: BookingRow): Booking {
     paymentStatus: row.payment_status as PaymentStatus,
     stripeSessionId: row.stripe_session_id,
     createdAt: new Date(row.created_at),
+    subtotalPence: row.subtotal_pence ?? null,
+    discountPence: row.discount_pence ?? 0,
+    couponId: row.coupon_id ?? null,
+    couponCode: row.coupon_code ?? null,
   };
 }
