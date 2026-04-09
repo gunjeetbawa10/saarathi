@@ -12,6 +12,7 @@ const baseFields = {
   name: z.string().min(2, "Please enter your name"),
   email: z.string().email("Valid email required"),
   phone: z.string().min(10, "Valid phone required"),
+  postcode: z.string().min(1, "Enter the postcode for the service location"),
   address: z.string().min(8, "Please enter a full address"),
   notes: z.string().optional(),
   couponCode: z.string().optional(),

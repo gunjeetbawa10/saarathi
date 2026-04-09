@@ -52,7 +52,7 @@ export default async function AdminBookingsPage() {
           <thead className="border-b border-primary/10 bg-cream/80 text-xs uppercase tracking-wider text-ink/50">
             <tr>
               <th className="px-4 py-3">Created</th>
-              <th className="px-4 py-3">Customer</th>
+              <th className="px-4 py-3">Customer / postcode</th>
               <th className="px-4 py-3">Service</th>
               <th className="px-4 py-3">When</th>
               <th className="px-4 py-3">Price</th>
@@ -70,6 +70,9 @@ export default async function AdminBookingsPage() {
                   <div className="font-medium text-ink">{b.name}</div>
                   <div className="text-xs text-ink/60">{b.email}</div>
                   <div className="text-xs text-ink/60">{b.phone}</div>
+                  {b.postcode && (
+                    <div className="mt-1 text-xs font-medium text-primary/90">{b.postcode}</div>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-ink/80">
                   {serviceLabel(b.service)}

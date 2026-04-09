@@ -37,6 +37,7 @@ export type BookingRow = {
   name: string;
   email: string;
   phone: string;
+  postcode: string | null;
   address: string;
   notes: string | null;
   price: number;
@@ -60,6 +61,7 @@ export type Booking = {
   name: string;
   email: string;
   phone: string;
+  postcode: string | null;
   address: string;
   notes: string | null;
   price: number;
@@ -83,6 +85,7 @@ export function bookingFromRow(row: BookingRow): Booking {
     name: row.name,
     email: row.email,
     phone: row.phone,
+    postcode: row.postcode ?? null,
     address: row.address,
     notes: row.notes,
     price: row.price,

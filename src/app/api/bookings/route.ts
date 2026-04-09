@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { format } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { syncClerkUserToSupabase } from "@/lib/clerk-customer-sync";
 import { getStripe } from "@/lib/stripe";
 import {
   insertBooking,
@@ -17,6 +18,7 @@ import {
   parseSlotStartKey,
 } from "@/lib/booking-slots";
 import { bookingApiSchema } from "@/validation/booking";
+import { checkPostcodeInServiceArea } from "@/lib/service-area";
 
 const BOOKING_TZ = "Europe/London";
 
@@ -54,6 +56,11 @@ export async function POST(req: Request) {
 
     const data = parsed.data;
 
+    const area = await checkPostcodeInServiceArea(data.postcode);
+    if (!area.ok) {
+      return NextResponse.json({ error: area.message }, { status: 400 });
+    }
+
     if (!isKnownSlotLabel(data.time)) {
       return NextResponse.json({ error: "Invalid time slot" }, { status: 400 });
     }
@@ -83,6 +90,14 @@ export async function POST(req: Request) {
     const price = finalPence;
 
     const { userId } = await auth();
+    if (userId) {
+      try {
+        const u = await currentUser();
+        if (u) await syncClerkUserToSupabase(u);
+      } catch (e) {
+        console.error("[api/bookings] clerk profile sync", e);
+      }
+    }
 
     const booking = await insertBooking({
       service: data.service,
@@ -92,6 +107,7 @@ export async function POST(req: Request) {
       name: data.name,
       email: data.email,
       phone: data.phone,
+      postcode: area.postcode,
       address: data.address,
       notes: data.notes ?? null,
       price,

@@ -69,6 +69,9 @@ export function MyBookingsTable({
                 <div className="text-xs text-ink/50">{b.time}</div>
               </td>
               <td className="max-w-[200px] px-4 py-3 text-xs text-ink/70">
+                {b.postcode && (
+                  <span className="mb-1 block font-medium text-primary/90">{b.postcode}</span>
+                )}
                 <span className="line-clamp-2">{b.address}</span>
               </td>
               <td className="px-4 py-3 font-medium">{formatGbpFromPence(b.price)}</td>

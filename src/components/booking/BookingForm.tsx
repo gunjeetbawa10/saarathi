@@ -18,6 +18,11 @@ import {
 } from "@/lib/booking-pricing";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+type ServiceAreaUi =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "ok"; distanceMiles: number }
+  | { status: "fail"; message: string };
 
 const services: { value: ServiceType; label: string }[] = [
   { value: "DEEP_CLEAN", label: "Deep Clean" },
@@ -59,6 +64,7 @@ export function BookingForm({
   } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponApplying, setCouponApplying] = useState(false);
+  const [serviceArea, setServiceArea] = useState<ServiceAreaUi>({ status: "idle" });
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
@@ -70,6 +76,7 @@ export function BookingForm({
       name: "",
       email: "",
       phone: "",
+      postcode: "",
       address: "",
       notes: "",
       couponCode: "",
@@ -79,6 +86,7 @@ export function BookingForm({
   const service = form.watch("service");
   const propertySize = form.watch("propertySize");
   const selectedDate = form.watch("date");
+  const postcodeField = form.watch("postcode");
 
   const pricePence = useMemo(
     () => calculateBookingPricePence(service, propertySize),
@@ -87,6 +95,9 @@ export function BookingForm({
 
   const finalPence = couponPreview?.finalPence ?? pricePence;
   const discountPence = couponPreview?.discountPence ?? 0;
+
+  const postcodeOk =
+    postcodeField.trim().length > 0 && serviceArea.status === "ok";
 
   useEffect(() => {
     setCouponPreview(null);
@@ -136,6 +147,49 @@ export function BookingForm({
   }, [selectedDate, form]);
 
   useEffect(() => {
+    const raw = postcodeField?.trim() ?? "";
+    if (!raw) {
+      setServiceArea({ status: "idle" });
+      return;
+    }
+    setServiceArea({ status: "idle" });
+    const handle = window.setTimeout(() => {
+      void (async () => {
+        setServiceArea({ status: "checking" });
+        try {
+          const res = await fetch("/api/bookings/service-area", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ postcode: raw }),
+          });
+          const data = (await res.json()) as {
+            ok?: boolean;
+            message?: string;
+            distanceMiles?: number;
+          };
+          if (res.ok && data.ok) {
+            setServiceArea({
+              status: "ok",
+              distanceMiles: data.distanceMiles ?? 0,
+            });
+            return;
+          }
+          setServiceArea({
+            status: "fail",
+            message: data.message ?? "We could not confirm coverage for this postcode.",
+          });
+        } catch {
+          setServiceArea({
+            status: "fail",
+            message: "Could not verify postcode. Try again.",
+          });
+        }
+      })();
+    }, 450);
+    return () => window.clearTimeout(handle);
+  }, [postcodeField]);
+
+  useEffect(() => {
     if (!selectedDate) return;
     let cancelled = false;
     setSlotsLoading(true);
@@ -171,6 +225,35 @@ export function BookingForm({
     setSubmitError(null);
     setLoading(true);
     try {
+      const verifyRes = await fetch("/api/bookings/service-area", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postcode: values.postcode }),
+      });
+      const verifyData = (await verifyRes.json()) as {
+        ok?: boolean;
+        message?: string;
+        distanceMiles?: number;
+      };
+      if (!verifyRes.ok || !verifyData.ok) {
+        setServiceArea({
+          status: "fail",
+          message:
+            verifyData.message ??
+            "We could not confirm coverage for this postcode.",
+        });
+        setSubmitError(
+          verifyData.message ??
+            "We could not confirm coverage for this postcode."
+        );
+        setLoading(false);
+        return;
+      }
+      setServiceArea({
+        status: "ok",
+        distanceMiles: verifyData.distanceMiles ?? 0,
+      });
+
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -362,6 +445,39 @@ export function BookingForm({
 
         <div>
           <label className="text-xs font-semibold uppercase tracking-wider text-primary/80">
+            Service postcode
+          </label>
+          <input
+            {...form.register("postcode")}
+            className={fieldClass(!!form.formState.errors.postcode)}
+            placeholder="UK postcode"
+            autoComplete="postal-code"
+          />
+          {form.formState.errors.postcode?.message && (
+            <p className="mt-1 text-sm text-red-600">
+              {String(form.formState.errors.postcode.message)}
+            </p>
+          )}
+          {serviceArea.status === "checking" && (
+            <p className="mt-2 text-sm text-ink/60">Checking coverage…</p>
+          )}
+          {serviceArea.status === "ok" && (
+            <p className="mt-2 text-sm text-primary">
+              You&apos;re inside our service area
+              {serviceArea.distanceMiles > 0
+                ? ` (about ${serviceArea.distanceMiles.toFixed(0)} miles from our base).`
+                : "."}
+            </p>
+          )}
+          {serviceArea.status === "fail" && (
+            <p className="mt-2 text-sm text-red-700" role="alert">
+              {serviceArea.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-xs font-semibold uppercase tracking-wider text-primary/80">
             Service address
           </label>
           <textarea
@@ -386,7 +502,12 @@ export function BookingForm({
 
         <Button
           type="submit"
-          disabled={loading || slotsLoading || slots.length === 0}
+          disabled={
+            loading ||
+            slotsLoading ||
+            slots.length === 0 ||
+            !postcodeOk
+          }
           className="w-full sm:w-auto"
         >
           {loading ? "Redirecting to secure payment…" : "Continue to payment"}

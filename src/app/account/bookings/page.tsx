@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { syncClerkUserToSupabase } from "@/lib/clerk-customer-sync";
 import { listBookingsForClerkUser } from "@/lib/supabase/server";
 import { bookingFromRow } from "@/types/booking";
 import { partitionUpcomingAndPast } from "@/lib/booking-lists";
@@ -20,6 +21,15 @@ export default async function AccountBookingsPage() {
   const { userId } = await auth();
   if (!userId) {
     redirect(`/sign-in?redirect_url=${encodeURIComponent("/account/bookings")}`);
+  }
+
+  const user = await currentUser();
+  if (user) {
+    try {
+      await syncClerkUserToSupabase(user);
+    } catch (e) {
+      console.error("[account/bookings] clerk profile sync", e);
+    }
   }
 
   let upcoming: ReturnType<typeof bookingFromRow>[] = [];

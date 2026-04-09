@@ -26,12 +26,13 @@ export default async function AdminCustomersPage() {
     <div className="px-4 py-10 md:px-8">
       <h1 className="font-display text-3xl text-primary">Customers</h1>
       <p className="mt-2 text-sm text-ink/60">
-        Unique emails merged from bookings, newsletter signups, and contact form
-        messages. “Last activity” is the most recent event across those sources.
+        Unique emails merged from bookings, newsletter signups, contact form messages, and Clerk
+        accounts (webhook + visiting “My bookings”). “Last activity” is the most recent event
+        across those sources. Refresh the page to see updates.
       </p>
 
       <div className="mt-8 overflow-x-auto rounded-2xl border border-primary/10 bg-white shadow-card">
-        <table className="w-full min-w-[880px] text-left text-sm">
+        <table className="w-full min-w-[960px] text-left text-sm">
           <thead className="border-b border-primary/10 bg-cream/80 text-xs uppercase tracking-wider text-ink/50">
             <tr>
               <th className="px-4 py-3">Last activity</th>
@@ -41,6 +42,7 @@ export default async function AdminCustomersPage() {
               <th className="px-4 py-3">Bookings</th>
               <th className="px-4 py-3">Newsletter</th>
               <th className="px-4 py-3">Contact msgs</th>
+              <th className="px-4 py-3">Clerk</th>
             </tr>
           </thead>
           <tbody>
@@ -57,6 +59,9 @@ export default async function AdminCustomersPage() {
                   {c.newsletterSignup ? "Yes" : "—"}
                 </td>
                 <td className="px-4 py-3">{c.contactSubmissions}</td>
+                <td className="px-4 py-3 text-ink/80">
+                  {c.clerkAccount ? "Yes" : "—"}
+                </td>
               </tr>
             ))}
           </tbody>

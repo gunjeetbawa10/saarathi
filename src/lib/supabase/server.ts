@@ -1,7 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import type { BookingRow } from "@/types/booking";
 import type { ContactSubmissionRow, NewsletterSignupRow } from "@/types/leads";
-import type { AdminCredentialRow, AdminCustomerRow } from "@/types/admin";
+import type {
+  AdminCredentialRow,
+  AdminCustomerRow,
+  ClerkCustomerProfileRow,
+} from "@/types/admin";
 import { bookingFromRow } from "@/types/booking";
 import { fromZonedTime } from "date-fns-tz";
 import { normalizeSupabaseUrl } from "@/lib/supabase/env";
@@ -35,6 +39,7 @@ export type InsertBookingInput = {
   name: string;
   email: string;
   phone: string;
+  postcode: string | null;
   address: string;
   notes: string | null;
   price: number;
@@ -58,6 +63,7 @@ export async function insertBooking(data: InsertBookingInput): Promise<BookingRo
       name: data.name,
       email: data.email,
       phone: data.phone,
+      postcode: data.postcode ?? null,
       address: data.address,
       notes: data.notes,
       price: data.price,
@@ -212,8 +218,72 @@ function emailKey(email: string): string | null {
   return k.length ? k : null;
 }
 
+function clerkProfileDisplayName(p: ClerkCustomerProfileRow): string {
+  const n = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
+  return n || "—";
+}
+
+/** PostgREST: table not exposed / migration `007_clerk_customer_profiles.sql` not applied yet. */
+function isClerkProfilesTableMissing(error: { code?: string } | null): boolean {
+  return error?.code === "PGRST205";
+}
+
+export async function upsertClerkCustomerProfile(input: {
+  clerk_user_id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+}): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("clerk_customer_profiles").upsert(
+    {
+      clerk_user_id: input.clerk_user_id,
+      email: input.email.trim(),
+      first_name: input.first_name,
+      last_name: input.last_name,
+      phone: input.phone,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "clerk_user_id" }
+  );
+  if (error) {
+    if (isClerkProfilesTableMissing(error)) return;
+    throw error;
+  }
+}
+
+export async function deleteClerkCustomerProfile(clerkUserId: string): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("clerk_customer_profiles")
+    .delete()
+    .eq("clerk_user_id", clerkUserId);
+  if (error) {
+    if (isClerkProfilesTableMissing(error)) return;
+    throw error;
+  }
+}
+
+async function listClerkCustomerProfilesForDirectory(
+  limit = 5000
+): Promise<ClerkCustomerProfileRow[]> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("clerk_customer_profiles")
+    .select("clerk_user_id, email, first_name, last_name, phone, updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    if (isClerkProfilesTableMissing(error)) return [];
+    throw error;
+  }
+  return (data ?? []) as ClerkCustomerProfileRow[];
+}
+
 /**
- * Merges unique emails from bookings, newsletter signups, and contact form submissions.
+ * Merges unique emails from bookings, newsletter, contact form, and Clerk profile mirror.
  * Bookings drive name/phone when present; “last activity” is the newest timestamp across sources.
  */
 export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
@@ -233,6 +303,13 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
     console.error("[getAdminCustomerDirectory] contact_submissions", e);
   }
 
+  let clerkRows: ClerkCustomerProfileRow[] = [];
+  try {
+    clerkRows = await listClerkCustomerProfilesForDirectory(5000);
+  } catch (e) {
+    console.error("[getAdminCustomerDirectory] clerk_customer_profiles", e);
+  }
+
   const bookings = bookingRows.map(bookingFromRow);
   const map = new Map<
     string,
@@ -244,6 +321,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
       bookingCount: number;
       newsletterSignup: boolean;
       contactSubmissions: number;
+      clerkAccount: boolean;
     }
   >();
 
@@ -261,6 +339,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
         bookingCount: 1,
         newsletterSignup: false,
         contactSubmissions: 0,
+        clerkAccount: false,
       });
     } else {
       existing.bookingCount += 1;
@@ -286,6 +365,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
         bookingCount: 0,
         newsletterSignup: true,
         contactSubmissions: 0,
+        clerkAccount: false,
       });
     } else {
       existing.newsletterSignup = true;
@@ -332,6 +412,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
         bookingCount: 0,
         newsletterSignup: false,
         contactSubmissions: c.count,
+        clerkAccount: false,
       });
     } else {
       existing.contactSubmissions = c.count;
@@ -347,6 +428,38 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
     }
   }
 
+  for (const p of clerkRows) {
+    const key = emailKey(p.email);
+    if (!key) continue;
+    const at = new Date(p.updated_at);
+    const displayName = clerkProfileDisplayName(p);
+    const phone = p.phone?.trim() || "—";
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, {
+        email: p.email.trim(),
+        name: displayName,
+        phone,
+        lastActivityAt: at,
+        bookingCount: 0,
+        newsletterSignup: false,
+        contactSubmissions: 0,
+        clerkAccount: true,
+      });
+    } else {
+      existing.clerkAccount = true;
+      if (at > existing.lastActivityAt) {
+        existing.lastActivityAt = at;
+      }
+      if (!existing.phone || existing.phone === "—") {
+        existing.phone = phone;
+      }
+      if (existing.name === "—" || !existing.name.trim()) {
+        existing.name = displayName;
+      }
+    }
+  }
+
   return Array.from(map.values())
     .map(
       (r): AdminCustomerRow => ({
@@ -357,6 +470,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
         bookingCount: r.bookingCount,
         newsletterSignup: r.newsletterSignup,
         contactSubmissions: r.contactSubmissions,
+        clerkAccount: r.clerkAccount,
       })
     )
     .sort((a, b) => b.lastActivityAt.getTime() - a.lastActivityAt.getTime());

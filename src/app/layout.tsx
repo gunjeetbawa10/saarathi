@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { WelcomeCouponPopup } from "@/components/layout/WelcomeCouponPopup";
 import { rootMetadata } from "@/lib/site-metadata";
 
 const inter = Inter({
@@ -32,6 +33,7 @@ export default function RootLayout({
           <SiteHeader />
           <main className="min-h-[60vh]">{children}</main>
           <SiteFooter />
+          <WelcomeCouponPopup />
         </body>
       </html>
     </ClerkProvider>

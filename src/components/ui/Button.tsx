@@ -19,6 +19,7 @@ export function Button({
   children,
   type = "button",
   disabled,
+  onClick,
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
@@ -33,14 +34,18 @@ export function Button({
 
   if (href) {
     return (
-      <Link href={href} className={cls}>
+      <Link
+        href={href}
+        className={cls}
+        onClick={onClick as React.MouseEventHandler<HTMLAnchorElement> | undefined}
+      >
         {children}
       </Link>
     );
   }
 
   return (
-    <button type={type} className={cls} disabled={disabled} {...rest}>
+    <button type={type} className={cls} disabled={disabled} onClick={onClick} {...rest}>
       {children}
     </button>
   );
