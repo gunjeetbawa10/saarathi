@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { getAdminCustomerDirectory } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Admin — Customers",
+  title: "Admin: Customers",
   robots: { index: false, follow: false },
 };
 
@@ -56,11 +56,11 @@ export default async function AdminCustomersPage() {
                 <td className="px-4 py-3 text-ink/70">{c.phone}</td>
                 <td className="px-4 py-3">{c.bookingCount}</td>
                 <td className="px-4 py-3 text-ink/80">
-                  {c.newsletterSignup ? "Yes" : "—"}
+                  {c.newsletterSignup ? "Yes" : "-"}
                 </td>
                 <td className="px-4 py-3">{c.contactSubmissions}</td>
                 <td className="px-4 py-3 text-ink/80">
-                  {c.clerkAccount ? "Yes" : "—"}
+                  {c.clerkAccount ? "Yes" : "-"}
                 </td>
               </tr>
             ))}
@@ -68,7 +68,7 @@ export default async function AdminCustomersPage() {
         </table>
         {customers.length === 0 && (
           <p className="px-4 py-10 text-center text-ink/50">
-            No leads yet — bookings, newsletter signups, and contact form submissions
+            No leads yet. Bookings, newsletter signups, and contact form submissions
             will appear here.
           </p>
         )}

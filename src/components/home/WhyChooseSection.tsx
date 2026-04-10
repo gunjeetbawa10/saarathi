@@ -3,7 +3,11 @@ import { Reveal } from "@/components/motion/Reveal";
 const items = [
   { title: "Fully insured", body: "Comprehensive cover for your peace of mind on every visit." },
   { title: "Vetted professionals", body: "Trained teams, background-checked and briefed to your standard." },
-  { title: "Eco-friendly products", body: "Premium formulations that respect people, pets, and finishes." },
+  {
+    title: "Eco-conscious cleaning",
+    body:
+      "Professional-grade, eco-friendly products: effective on dirt, gentle on air, surfaces, and everyone who shares your space.",
+  },
   { title: "5-star rated service", body: "Consistent excellence trusted by hosts, homeowners, and offices." },
 ];
 

@@ -6,14 +6,14 @@ import { bookingFromRow } from "@/types/booking";
 import { listRecentCheckoutSessions } from "@/lib/admin-stripe";
 
 export const metadata: Metadata = {
-  title: "Admin — Payments",
+  title: "Admin: Payments",
   robots: { index: false, follow: false },
 };
 
 export const dynamic = "force-dynamic";
 
 function formatStripeAmount(amount: number | null, currency: string | null) {
-  if (amount == null) return "—";
+  if (amount == null) return "-";
   const upper = (currency ?? "gbp").toUpperCase();
   if (upper === "GBP") return formatGbpFromPence(amount);
   return `${(amount / 100).toFixed(2)} ${upper}`;
@@ -70,7 +70,7 @@ export default async function AdminTransactionsPage() {
                   {formatGbpFromPence(b.price)}
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-ink/70">
-                  {b.stripeSessionId ?? "—"}
+                  {b.stripeSessionId ?? "-"}
                 </td>
               </tr>
             ))}
@@ -112,10 +112,10 @@ export default async function AdminTransactionsPage() {
                 <td className="px-4 py-3">
                   {formatStripeAmount(s.amountTotal, s.currency)}
                 </td>
-                <td className="px-4 py-3">{s.paymentStatus ?? "—"}</td>
-                <td className="px-4 py-3 text-ink/80">{s.customerEmail ?? "—"}</td>
+                <td className="px-4 py-3">{s.paymentStatus ?? "-"}</td>
+                <td className="px-4 py-3 text-ink/80">{s.customerEmail ?? "-"}</td>
                 <td className="px-4 py-3 font-mono text-xs text-ink/60">
-                  {s.bookingId ?? "—"}
+                  {s.bookingId ?? "-"}
                 </td>
               </tr>
             ))}

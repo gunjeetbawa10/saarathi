@@ -14,7 +14,7 @@ export function SiteFooter() {
         <div>
           <p className="font-display text-2xl text-accent">{SITE_NAME}</p>
           <p className="mt-4 max-w-xs text-sm text-white/75">
-            Premier property management and cleaning across North Wales — calm,
+            Premier property management and cleaning across North Wales: calm,
             consistent, and quietly exceptional.
           </p>
         </div>

@@ -34,7 +34,7 @@ export function ContactForm() {
       });
       if (!res.ok) {
         setStatus("err");
-        setMessage("Could not send — please call or email us directly.");
+        setMessage("Could not send. Please call or email us directly.");
         return;
       }
       setStatus("ok");
@@ -42,7 +42,7 @@ export function ContactForm() {
       form.reset();
     } catch {
       setStatus("err");
-      setMessage("Network error — try again or use the details beside this form.");
+      setMessage("Network error. Try again or use the details beside this form.");
     }
   }
 

@@ -5,7 +5,7 @@ import { bookingFromRow } from "@/types/booking";
 import { formatGbpFromPence, serviceLabel } from "@/lib/booking-pricing";
 
 export const metadata: Metadata = {
-  title: "Admin — Bookings",
+  title: "Admin: Bookings",
   robots: { index: false, follow: false },
 };
 
@@ -45,7 +45,7 @@ export default async function AdminBookingsPage() {
     <div className="px-4 py-10 md:px-8">
       <h1 className="font-display text-3xl text-primary">Bookings</h1>
       <p className="mt-2 text-sm text-ink/60">
-        Hidden route — do not link from public navigation.
+        Hidden route. Do not link from public navigation.
       </p>
       <div className="mt-8 overflow-x-auto rounded-2xl border border-primary/10 bg-white shadow-card">
         <table className="w-full min-w-[720px] text-left text-sm">
@@ -92,7 +92,7 @@ export default async function AdminBookingsPage() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-xs text-ink/70">
-                  {b.couponCode ?? "—"}
+                  {b.couponCode ?? "-"}
                 </td>
                 <td className="px-4 py-3">
                   <span

@@ -110,7 +110,7 @@ export default async function AccountBookingsPage() {
           <div className="mt-6">
             <MyBookingsTable
               bookings={past}
-              emptyMessage="No past bookings yet — your completed visits will show here."
+              emptyMessage="No past bookings yet. Your completed visits will show here."
             />
           </div>
         </section>

@@ -93,7 +93,11 @@ export function WelcomeCouponPopup() {
                 {WELCOME_COUPON_PERCENT}% off your first booking
               </h2>
               <p className="mt-2 text-sm text-white/80">
-                Use this code at checkout — valid for new visitors.
+                Use this code at checkout. Valid for new visitors.
+              </p>
+              <p className="mt-3 text-xs leading-relaxed text-white/65">
+                First cleans use our eco-friendly product range: same
+                five-star finish, lighter footprint.
               </p>
             </div>
             <div className="px-6 py-6">

@@ -62,7 +62,7 @@ export function availableSlotLabels(occupiedStartKeys: Set<string>): string[] {
   });
 }
 
-/** Start keys (HH:mm) already taken for that day — pending and paid bookings. */
+/** Start keys (HH:mm) already taken for that day (pending and paid bookings). */
 export function occupiedSlotStartKeysFromBookings(rows: BookingRow[]): Set<string> {
   const s = new Set<string>();
   for (const r of rows) {

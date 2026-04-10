@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { listNewsletterSignupsDesc } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Admin — Newsletter",
+  title: "Admin: Newsletter",
   robots: { index: false, follow: false },
 };
 

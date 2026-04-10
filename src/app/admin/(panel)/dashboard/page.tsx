@@ -4,7 +4,7 @@ import { formatGbpFromPence } from "@/lib/booking-pricing";
 import { getAdminDashboardStats } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Admin — Overview",
+  title: "Admin: Overview",
   robots: { index: false, follow: false },
 };
 
@@ -51,7 +51,7 @@ export default async function AdminDashboardPage() {
     <div className="px-4 py-10 md:px-8">
       <h1 className="font-display text-3xl text-primary">Overview</h1>
       <p className="mt-2 text-sm text-ink/60">
-        Hidden area — do not link from public navigation.
+        Hidden area. Do not link from public navigation.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

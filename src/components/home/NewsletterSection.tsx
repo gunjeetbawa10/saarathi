@@ -13,7 +13,7 @@ export function NewsletterSection() {
             Notes on care, quietly delivered
           </h2>
           <p className="mt-4 text-ink/70">
-            Occasional insights on maintaining luxury spaces — no clutter, no
+            Occasional insights on maintaining luxury spaces. No clutter, no
             noise.
           </p>
         </Reveal>

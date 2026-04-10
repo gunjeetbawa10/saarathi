@@ -200,7 +200,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: CouponR
                   {c.max_uses != null ? ` / ${c.max_uses}` : ""}
                 </td>
                 <td className="px-4 py-3 text-ink/70">
-                  {c.valid_until ? format(new Date(c.valid_until), "dd MMM yyyy HH:mm") : "—"}
+                  {c.valid_until ? format(new Date(c.valid_until), "dd MMM yyyy HH:mm") : "-"}
                 </td>
                 <td className="px-4 py-3">{c.active ? "Yes" : "No"}</td>
               </tr>

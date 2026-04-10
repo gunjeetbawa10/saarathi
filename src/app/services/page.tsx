@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Deep cleans, Airbnb turnovers, standard home care, and executive office cleaning — Saarathi Services across North Wales.",
+    "Deep cleans, Airbnb turnovers, standard home care, and executive office cleaning. Saarathi Services across North Wales.",
 };
 
 export default function ServicesPage() {
@@ -22,7 +22,7 @@ export default function ServicesPage() {
             </p>
             <h1 className="mt-4 font-display text-4xl md:text-5xl">Services</h1>
             <p className="mt-6 max-w-2xl text-lg text-white/80">
-              Precision cleaning and property care — scaled to your space, your
+              Precision cleaning and property care, scaled to your space, your
               schedule, and your standard of quiet luxury.
             </p>
           </Reveal>
@@ -74,7 +74,7 @@ export default function ServicesPage() {
             Need something bespoke?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/75">
-            Corporate blocks, estate portfolios, and pre-event resets — tell us
+            Corporate blocks, estate portfolios, and pre-event resets: tell us
             what you need and we&apos;ll shape a proposal.
           </p>
           <Button href="/contact" variant="primary" className="mt-8">

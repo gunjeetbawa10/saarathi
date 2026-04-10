@@ -29,7 +29,7 @@ export function NewsletterForm() {
       setEmail("");
     } catch {
       setStatus("err");
-      setMessage("Network error — try again shortly.");
+      setMessage("Network error. Try again shortly.");
     }
   }
 

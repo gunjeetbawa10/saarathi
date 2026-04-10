@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Saarathi Services — a North Wales team delivering luxury cleaning and property management with discretion and craft.",
+    "Saarathi Services: a North Wales team delivering luxury cleaning and property management with discretion and craft.",
 };
 
 const portrait =
@@ -32,14 +32,19 @@ export default function AboutPage() {
                 shine.
               </p>
               <p>
-                Every visit is choreographed — products chosen for fine
-                finishes, schedules aligned with yours, and teams who treat
-                your property with the same respect you do.
+                Every visit is choreographed. We use{" "}
+                <strong className="font-medium text-primary">
+                  eco-friendly cleaning products
+                </strong>{" "}
+                that deliver professional results while staying mindful of air
+                quality, delicate finishes, and the world outside your door.
+                Schedules align with yours, and teams treat your property with
+                the same respect you do.
               </p>
               <p>
                 Based in Bangor, we work across North Wales and select
                 neighbouring postcodes. If you&apos;re unsure whether we cover
-                your area, ask — we&apos;re happy to advise.
+                your area, ask. We&apos;re happy to advise.
               </p>
             </div>
             <Button href="/booking" className="mt-10">

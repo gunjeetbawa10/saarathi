@@ -18,7 +18,7 @@ export default function BookingCancelPage({
       </h1>
       <p className="mt-6 text-ink/75">
         No payment was taken. Your details may still be saved as a pending
-        booking — our team can follow up, or you can complete payment anytime
+        booking. Our team can follow up, or you can complete payment anytime
         by starting a new booking.
       </p>
       {searchParams.id && (

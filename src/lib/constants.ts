@@ -22,13 +22,13 @@ function numEnv(key: string, fallback: number): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/** Hub for service-area checks (LL59 5LP — Menai Bridge). Override via env if needed. */
+/** Hub for service-area checks (LL59 5LP, Menai Bridge). Override via env if needed. */
 export const SERVICE_AREA_CENTRE_LAT = numEnv("SERVICE_AREA_CENTRE_LAT", 53.232315);
 export const SERVICE_AREA_CENTRE_LNG = numEnv("SERVICE_AREA_CENTRE_LNG", -4.174055);
 export const SERVICE_AREA_CENTRE_POSTCODE = "LL59 5LP";
-export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 40);
+export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 35);
 
 export const SERVICE_AREA_OUTSIDE_MESSAGE =
-  "We’re not in operation at that postcode yet. We’re expanding across North Wales and beyond — check back soon, or contact us to register your interest.";
+  "We’re not in operation at that postcode yet. We’re expanding across North Wales and beyond. Check back soon, or contact us to register your interest.";
 
 /** Time slots are generated in `booking-slots.ts` and filtered per day via GET /api/bookings/availability. */

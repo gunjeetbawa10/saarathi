@@ -33,7 +33,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     title: "Deep Clean",
     tagline: "The complete reset",
     description:
-      "Top-to-bottom detail for homes that deserve a fresh start — fixtures, floors, and finishes brought back to showroom calm.",
+      "Top-to-bottom detail for homes that deserve a fresh start: fixtures, floors, and finishes brought back to showroom calm.",
     priceGbp: 150,
     image:
       "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80",
@@ -55,7 +55,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     title: "Standard Cleaning",
     tagline: "Consistent excellence",
     description:
-      "Recurring care tailored to your rhythm — polished living spaces without the operational noise.",
+      "Recurring care tailored to your rhythm: polished living spaces without the operational noise.",
     priceGbp: 85,
     image:
       "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80",
@@ -66,7 +66,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     title: "Executive Office Cleaning",
     tagline: "Boardroom quiet",
     description:
-      "Discreet, after-hours service for premium workspaces — presentation-ready every morning.",
+      "Discreet, after-hours service for premium workspaces, presentation-ready every morning.",
     priceGbp: 95,
     image:
       "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",

@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       from,
       to: CONTACT.email,
       replyTo: email,
-      subject: `Website enquiry — ${name}`,
+      subject: `Website enquiry: ${name}`,
       html: `<p><strong>${name}</strong> &lt;${email}&gt;</p><p>${message.replace(/\n/g, "<br/>")}</p>`,
     });
 

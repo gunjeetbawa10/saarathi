@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/Reveal";
 export const metadata: Metadata = {
   title: "Book",
   description:
-    "Book luxury cleaning and property care online. Choose your service, date, and time — pay securely with Stripe.",
+    "Book luxury cleaning and property care online. Choose your service, date, and time and pay securely with Stripe.",
 };
 
 function resolveService(serviceParam?: string) {

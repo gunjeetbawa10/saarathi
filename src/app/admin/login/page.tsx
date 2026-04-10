@@ -4,7 +4,7 @@ import { getAdminSession, isAdminSessionConfigured } from "@/lib/admin-session";
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
 
 export const metadata: Metadata = {
-  title: "Admin — Sign in",
+  title: "Admin: Sign in",
   robots: { index: false, follow: false },
 };
 
@@ -28,7 +28,7 @@ export default async function AdminLoginPage({
         <p className="mt-4">
           Set <code className="rounded bg-primary/10 px-1">ADMIN_SESSION_SECRET</code>{" "}
           (or legacy <code className="rounded bg-primary/10 px-1">ADMIN_SECRET</code>) in
-          your environment — a long random string used to sign session cookies.
+          your environment: a long random string used to sign session cookies.
         </p>
       </div>
     );
@@ -42,7 +42,7 @@ export default async function AdminLoginPage({
       <p className="mt-2 text-sm text-ink/60">
         Use your admin username and password. Default after migration:{" "}
         <code className="rounded bg-primary/10 px-1">admin</code> /{" "}
-        <code className="rounded bg-primary/10 px-1">admin</code> — change the hash in
+        <code className="rounded bg-primary/10 px-1">admin</code>. Change the hash in
         Supabase when ready.
       </p>
       <AdminLoginForm nextPath={nextDefault} />

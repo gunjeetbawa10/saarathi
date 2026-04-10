@@ -6,7 +6,7 @@ import { Reveal } from "@/components/motion/Reveal";
 export const metadata: Metadata = {
   title: "Insights",
   description:
-    "Articles on luxury property care, turnovers, and maintaining exceptional spaces — from Saarathi Services.",
+    "Articles on luxury property care, turnovers, and maintaining exceptional spaces from Saarathi Services.",
 };
 
 export default async function BlogPage() {
@@ -25,7 +25,7 @@ export default async function BlogPage() {
             </h1>
             <p className="mt-4 max-w-2xl text-ink/70">
               Practical perspective on keeping homes, rentals, and workplaces
-              at their best — powered by Hygraph.
+              at their best, powered by Hygraph.
             </p>
           </Reveal>
         </div>

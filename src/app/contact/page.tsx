@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion/Reveal";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: `Contact Saarathi Services — ${CONTACT.phoneDisplay}, ${CONTACT.email}, ${CONTACT.location}.`,
+  description: `Contact Saarathi Services: ${CONTACT.phoneDisplay}, ${CONTACT.email}, ${CONTACT.location}.`,
 };
 
 export default function ContactPage() {
@@ -21,7 +21,7 @@ export default function ContactPage() {
               Let&apos;s talk
             </h1>
             <p className="mt-4 max-w-2xl text-ink/70">
-              Enquiries, bespoke briefs, and partnership questions — we respond
+              Enquiries, bespoke briefs, and partnership questions. We respond
               thoughtfully, usually within one business day.
             </p>
           </Reveal>

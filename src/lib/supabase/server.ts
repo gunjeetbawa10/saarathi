@@ -220,7 +220,7 @@ function emailKey(email: string): string | null {
 
 function clerkProfileDisplayName(p: ClerkCustomerProfileRow): string {
   const n = [p.first_name, p.last_name].filter(Boolean).join(" ").trim();
-  return n || "—";
+  return n || "-";
 }
 
 /** PostgREST: table not exposed / migration `007_clerk_customer_profiles.sql` not applied yet. */
@@ -359,8 +359,8 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
     if (!existing) {
       map.set(key, {
         email: n.email.trim(),
-        name: "—",
-        phone: "—",
+        name: "-",
+        phone: "-",
         lastActivityAt: ns,
         bookingCount: 0,
         newsletterSignup: true,
@@ -407,7 +407,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
       map.set(key, {
         email: c.email,
         name: c.name,
-        phone: "—",
+        phone: "-",
         lastActivityAt: c.last,
         bookingCount: 0,
         newsletterSignup: false,
@@ -421,7 +421,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
       }
       if (
         existing.bookingCount === 0 &&
-        (existing.name === "—" || !existing.name.trim())
+        (existing.name === "-" || !existing.name.trim())
       ) {
         existing.name = c.name;
       }
@@ -433,7 +433,7 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
     if (!key) continue;
     const at = new Date(p.updated_at);
     const displayName = clerkProfileDisplayName(p);
-    const phone = p.phone?.trim() || "—";
+    const phone = p.phone?.trim() || "-";
     const existing = map.get(key);
     if (!existing) {
       map.set(key, {
@@ -451,10 +451,10 @@ export async function getAdminCustomerDirectory(): Promise<AdminCustomerRow[]> {
       if (at > existing.lastActivityAt) {
         existing.lastActivityAt = at;
       }
-      if (!existing.phone || existing.phone === "—") {
+      if (!existing.phone || existing.phone === "-") {
         existing.phone = phone;
       }
-      if (existing.name === "—" || !existing.name.trim()) {
+      if (existing.name === "-" || !existing.name.trim()) {
         existing.name = displayName;
       }
     }

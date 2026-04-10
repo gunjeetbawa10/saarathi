@@ -42,16 +42,16 @@ export async function POST(req: Request) {
         await resend.emails.send({
           from,
           to: CONTACT.email,
-          subject: `Newsletter signup — ${SITE_NAME}`,
+          subject: `Newsletter signup: ${SITE_NAME}`,
           html: `<p>New subscriber: <strong>${email}</strong></p>`,
         });
         await resend.emails.send({
           from,
           to: email,
-          subject: `You’re on the list — ${SITE_NAME}`,
+          subject: `You’re on the list: ${SITE_NAME}`,
           html: `
         <div style="font-family: Georgia, serif; color: #1a1a1a;">
-          <p>Thank you for joining our insights list. Expect calm, practical notes on keeping exceptional spaces — never noise.</p>
+          <p>Thank you for joining our insights list. Expect calm, practical notes on keeping exceptional spaces, never noise.</p>
           <p style="color:#666;font-size:12px;">${SITE_NAME} · ${CONTACT.location}</p>
         </div>
       `,

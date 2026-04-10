@@ -273,7 +273,7 @@ export function BookingForm({
       }
       setSubmitError("No checkout URL returned");
     } catch {
-      setSubmitError("Network error — please try again");
+      setSubmitError("Network error. Please try again");
     } finally {
       setLoading(false);
     }
@@ -342,7 +342,7 @@ export function BookingForm({
           )}
           {discountPence > 0 && couponPreview?.couponCode && (
             <p className="mt-1 text-sm text-primary">
-              {couponPreview.couponCode} applied — you save {formatGbpFromPence(discountPence)}
+              {couponPreview.couponCode} applied. You save {formatGbpFromPence(discountPence)}
             </p>
           )}
         </div>
@@ -519,7 +519,7 @@ export function BookingForm({
           Summary
         </p>
         <p className="mt-4 font-display text-2xl text-primary">
-          {service ? serviceLabel(service) : "—"}
+          {service ? serviceLabel(service) : "-"}
         </p>
         <p className="mt-2 text-sm text-ink/70">
           {selectedDate

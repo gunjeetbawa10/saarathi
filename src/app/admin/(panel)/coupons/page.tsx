@@ -3,7 +3,7 @@ import { AdminCouponsClient } from "@/components/admin/AdminCouponsClient";
 import { listCouponsDesc } from "@/lib/coupon-db";
 
 export const metadata: Metadata = {
-  title: "Admin — Coupons",
+  title: "Admin: Coupons",
   robots: { index: false, follow: false },
 };
 

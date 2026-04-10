@@ -20,7 +20,7 @@ function bookingDetailsHtml(b: Booking): string {
     <p><strong>Property:</strong> ${propertyLabel(b.propertySize)}</p>
     <p><strong>Date:</strong> ${format(b.date, "EEEE, d MMMM yyyy")}</p>
     <p><strong>Time:</strong> ${b.time}</p>
-    <p><strong>Postcode:</strong> ${b.postcode ?? "—"}</p>
+    <p><strong>Postcode:</strong> ${b.postcode ?? "-"}</p>
     <p><strong>Address:</strong> ${b.address}</p>
     <p><strong>Amount paid:</strong> ${formatGbpFromPence(b.price)}</p>
     ${b.notes ? `<p><strong>Notes:</strong> ${b.notes}</p>` : ""}
@@ -61,7 +61,7 @@ export async function sendNewBookingToAdmin(booking: Booking) {
   await resend.emails.send({
     from,
     to,
-    subject: `New paid booking — ${serviceLabel(booking.service)}`,
+    subject: `New paid booking: ${serviceLabel(booking.service)}`,
     html: `
       <div style="font-family: sans-serif; color: #1a1a1a;">
         <h2>New booking received</h2>

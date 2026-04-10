@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { listContactSubmissionsDesc } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Admin — Contact form",
+  title: "Admin: Contact form",
   robots: { index: false, follow: false },
 };
 

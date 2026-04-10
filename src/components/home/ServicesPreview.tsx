@@ -18,7 +18,7 @@ export function ServicesPreviewSection() {
             Tailored care, transparent pricing
           </h2>
           <p className="mt-4 max-w-2xl text-ink/70">
-            From full resets to rapid turnovers — every visit is choreographed
+            From full resets to rapid turnovers, every visit is choreographed
             for calm, consistent results.
           </p>
         </Reveal>

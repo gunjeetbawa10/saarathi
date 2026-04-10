@@ -190,7 +190,7 @@ async function requestOneUpperThenLower(
   }
 }
 
-/** Try PUBLISHED first, then default stage, then DRAFT — token may only allow some stages. */
+/** Try PUBLISHED first, then default stage, then DRAFT (token may only allow some stages). */
 const STAGE_FALLBACK: Array<"PUBLISHED" | "DRAFT" | null> = [
   "PUBLISHED",
   null,

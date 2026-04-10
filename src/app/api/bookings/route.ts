@@ -73,7 +73,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error:
-            "That time is no longer available — please choose another slot or date.",
+            "That time is no longer available. Please choose another slot or date.",
         },
         { status: 409 }
       );
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
             currency: "gbp",
             unit_amount: price,
             product_data: {
-              name: `Saarathi — ${serviceLabel(data.service)}`,
+              name: `Saarathi: ${serviceLabel(data.service)}`,
               description: descParts.join(" · "),
             },
           },

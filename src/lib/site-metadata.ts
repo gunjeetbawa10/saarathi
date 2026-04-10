@@ -8,7 +8,7 @@ export const rootMetadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Premier property management and cleaning in Bangor and North Wales. Deep cleans, Airbnb turnovers, and executive office care — fully insured, vetted teams, eco-conscious products.",
+    "Premier property management and cleaning in Bangor and North Wales. Deep cleans, Airbnb turnovers, and executive office care with fully insured, vetted teams and eco-conscious products.",
   keywords: [
     "luxury cleaning Bangor",
     "property management North Wales",
@@ -23,14 +23,14 @@ export const rootMetadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_NAME,
     description:
-      "Expertise you can trust — your premier property management and cleaning team.",
+      "Expertise you can trust: your premier property management and cleaning team.",
     url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",
     title: SITE_NAME,
     description:
-      "Expertise you can trust — premier property management and cleaning.",
+      "Expertise you can trust: premier property management and cleaning.",
   },
   robots: { index: true, follow: true },
   alternates: { canonical: SITE_URL },
