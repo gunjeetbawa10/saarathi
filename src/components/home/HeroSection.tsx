@@ -34,9 +34,14 @@ export function HeroSection() {
           <h1 className="mt-4 max-w-3xl font-display text-3xl leading-tight tracking-[0.08em] text-white sm:text-4xl md:text-5xl lg:text-6xl">
             EXPERTISE YOU CAN TRUST
           </h1>
-          <p className="mt-5 inline-flex max-w-full items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/95 backdrop-blur-sm">
-            Eco-friendly products · Luxury-level shine
-          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <p className="inline-flex max-w-full items-center rounded-full border border-white/25 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/95 backdrop-blur-sm">
+              Eco-friendly products · Luxury-level shine
+            </p>
+            <p className="inline-flex max-w-full items-center rounded-full border border-accent/50 bg-accent/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+              Fixed price · No hidden charges
+            </p>
+          </div>
           <p className="mt-6 max-w-xl text-lg text-white/85 md:text-xl">
             Your Premier Property Management and Cleaning Team. Meticulous care
             with products chosen for people, pets, and the planet.

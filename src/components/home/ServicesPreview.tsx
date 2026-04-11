@@ -21,6 +21,9 @@ export function ServicesPreviewSection() {
             From full resets to rapid turnovers, every visit is choreographed
             for calm, consistent results.
           </p>
+          <p className="mt-5 inline-flex max-w-full rounded-2xl border border-accent/35 bg-accent/10 px-4 py-3 text-sm font-medium text-primary md:text-base">
+            Fixed prices on every package. No hidden charges at checkout.
+          </p>
         </Reveal>
 
         <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">

@@ -9,8 +9,9 @@ export const WELCOME_COUPON_PERCENT = 10;
 export const WELCOME_POPUP_COOKIE = "saarthi_welcome_popup_seen";
 
 export const CONTACT = {
-  phone: "07375575049",
-  phoneDisplay: "07375 575049",
+  /** E.164 for tel: links */
+  phone: "+447375575049",
+  phoneDisplay: "+44 7375 575049",
   email: "info@saarathiservices.co.uk",
   location: "Bangor LL57, UK",
 } as const;
@@ -26,7 +27,8 @@ function numEnv(key: string, fallback: number): number {
 export const SERVICE_AREA_CENTRE_LAT = numEnv("SERVICE_AREA_CENTRE_LAT", 53.232315);
 export const SERVICE_AREA_CENTRE_LNG = numEnv("SERVICE_AREA_CENTRE_LNG", -4.174055);
 export const SERVICE_AREA_CENTRE_POSTCODE = "LL59 5LP";
-export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 35);
+/** ~11 mi keeps most visits within about 30 minutes of the hub. Override via env. */
+export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 11);
 
 export const SERVICE_AREA_OUTSIDE_MESSAGE =
   "We’re not in operation at that postcode yet. We’re expanding across North Wales and beyond. Check back soon, or contact us to register your interest.";

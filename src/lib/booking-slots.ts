@@ -1,44 +1,42 @@
 import type { BookingRow } from "@/types/booking";
 
 /**
- * Each visit reserves a fixed block: work time + travel to the next job.
- * Slots are spaced by the full block so the next start is never 30 minutes later
- * (e.g. after 11:00 the next offered start is 13:00, not 11:30).
+ * Fixed daily visit windows. Each label is when the team is at the property
+ * (e.g. 08:00–08:30). Only one booking per window per day.
  */
 
-export const BOOKING_WORK_MINUTES = 90;
-export const BOOKING_TRAVEL_MINUTES = 30;
-export const BOOKING_BLOCK_MINUTES = BOOKING_WORK_MINUTES + BOOKING_TRAVEL_MINUTES; // 120
+/** Start hour (24h) for each slot: 8am, 11am, 2pm, 5pm. */
+export const BOOKING_SLOT_START_HOURS = [8, 11, 14, 17] as const;
 
-/** First slot start (24h). */
-export const BOOKING_DAY_START_HOUR = 8;
-/** Last slot must end by this hour (24h). */
-export const BOOKING_DAY_END_HOUR = 18;
+/** Length of each visit window shown in the label (minutes). */
+export const BOOKING_SLOT_DURATION_MINUTES = 30;
+
+/** On-site window (same as slot duration). */
+export const BOOKING_WORK_MINUTES = BOOKING_SLOT_DURATION_MINUTES;
+
+/** Not used in slot labels; kept for API compatibility. */
+export const BOOKING_TRAVEL_MINUTES = 0;
+
+/** Total reserved window per slot (for API). */
+export const BOOKING_BLOCK_MINUTES = BOOKING_SLOT_DURATION_MINUTES;
 
 const PAD = (n: number) => String(n).padStart(2, "0");
 
-function minutesToLabel(startMin: number): string {
-  const endMin = startMin + BOOKING_BLOCK_MINUTES;
+function minutesToSlotLabel(startMin: number): string {
+  const endMin = startMin + BOOKING_SLOT_DURATION_MINUTES;
   const sh = Math.floor(startMin / 60);
   const sm = startMin % 60;
   const eh = Math.floor(endMin / 60);
   const em = endMin % 60;
-  return `${PAD(sh)}:${PAD(sm)} – ${PAD(eh)}:${PAD(em)}`;
+  return `${PAD(sh)}:${PAD(sm)} - ${PAD(eh)}:${PAD(em)}`;
 }
 
 /** All possible slot labels for a day (before filtering by availability). */
 export function generateAllSlotLabels(): string[] {
-  const slots: string[] = [];
-  let startMin = BOOKING_DAY_START_HOUR * 60;
-  const lastStart = BOOKING_DAY_END_HOUR * 60 - BOOKING_BLOCK_MINUTES;
-  while (startMin <= lastStart) {
-    slots.push(minutesToLabel(startMin));
-    startMin += BOOKING_BLOCK_MINUTES;
-  }
-  return slots;
+  return BOOKING_SLOT_START_HOURS.map((h) => minutesToSlotLabel(h * 60));
 }
 
-/** First HH:mm in the label (start of the block), for matching bookings. */
+/** First HH:mm in the label (start of the window), for matching bookings. */
 export function parseSlotStartKey(time: string): string | null {
   const m = time.trim().match(/^(\d{1,2}):(\d{2})/);
   if (!m) return null;

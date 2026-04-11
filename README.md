@@ -101,4 +101,4 @@ Create model API ID **`BlogPost`** (GraphQL: **`blogPosts`** / **`blogPost`**). 
 
 ---
 
-**Saarathi Services** — Bangor LL57, UK · 07375 575049 · info@saarathiservices.co.uk
+**Saarathi Services** — Bangor LL57, UK · +44 7375 575049 · info@saarathiservices.co.uk
