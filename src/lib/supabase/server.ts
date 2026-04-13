@@ -18,10 +18,11 @@ function isMissingColumnError(
   column: string
 ): boolean {
   if (!error) return false;
+  const message = error.message ?? "";
   return (
     error.code === "PGRST204" &&
-    error.message?.includes(`'${column}'`) &&
-    error.message?.includes(`'${table}'`)
+    message.includes(`'${column}'`) &&
+    message.includes(`'${table}'`)
   );
 }
 
@@ -95,7 +96,8 @@ export async function insertBooking(data: InsertBookingInput): Promise<BookingRo
 
   if (error) {
     if (isMissingColumnError(error, "bookings", "postcode")) {
-      const { postcode: _postcode, ...fallbackPayload } = payload;
+      const { postcode, ...fallbackPayload } = payload;
+      void postcode;
       const { data: retryRow, error: retryError } = await supabase
         .from("bookings")
         .insert(fallbackPayload)
