@@ -126,6 +126,9 @@ export async function POST(req: Request) {
         : null,
     ].filter(Boolean);
 
+    const origin = req.headers.get("origin")?.trim();
+    const baseUrl = origin && /^https?:\/\//.test(origin) ? origin : SITE_URL;
+
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       customer_email: data.email,
@@ -142,8 +145,8 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${SITE_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${SITE_URL}/booking/cancel?id=${booking.id}`,
+      success_url: `${baseUrl}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/booking/cancel?id=${booking.id}`,
       metadata: {
         bookingId: booking.id,
         subtotalPence: String(subtotalPence),
