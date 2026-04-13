@@ -59,6 +59,30 @@ export function SiteFooter() {
                 Insights
               </Link>
             </li>
+            <li>
+              <Link
+                href="/terms-and-conditions"
+                className="text-white/85 hover:text-accent"
+              >
+                Terms &amp; Conditions
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/privacy-policy"
+                className="text-white/85 hover:text-accent"
+              >
+                Privacy Policy
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/cancellation-refund-policy"
+                className="text-white/85 hover:text-accent"
+              >
+                Cancellation &amp; Refund
+              </Link>
+            </li>
           </ul>
           <div className="mt-6 flex gap-4">
             {social.map((s) => (

@@ -18,7 +18,7 @@ export function GallerySection() {
             Wales.
           </p>
         </Reveal>
-        <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+        <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {GALLERY_IMAGES.map((img, i) => (
             <Reveal key={img.src} delay={i * 0.04}>
               <div className="relative aspect-square overflow-hidden rounded-2xl shadow-card">

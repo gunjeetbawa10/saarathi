@@ -12,6 +12,19 @@ import { normalizeSupabaseUrl } from "@/lib/supabase/env";
 
 const BOOKING_TZ = "Europe/London";
 
+function isMissingColumnError(
+  error: { code?: string; message?: string } | null,
+  table: string,
+  column: string
+): boolean {
+  if (!error) return false;
+  return (
+    error.code === "PGRST204" &&
+    error.message?.includes(`'${column}'`) &&
+    error.message?.includes(`'${table}'`)
+  );
+}
+
 function getSupabaseUrl(): string {
   const url = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
   if (!url) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");
@@ -53,31 +66,47 @@ export type InsertBookingInput = {
 
 export async function insertBooking(data: InsertBookingInput): Promise<BookingRow> {
   const supabase = getSupabaseAdmin();
+
+  const payload = {
+    service: data.service,
+    property_size: data.property_size,
+    date: data.date,
+    time: data.time,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    postcode: data.postcode ?? null,
+    address: data.address,
+    notes: data.notes,
+    price: data.price,
+    payment_status: data.payment_status,
+    clerk_user_id: data.clerk_user_id ?? null,
+    subtotal_pence: data.subtotal_pence,
+    discount_pence: data.discount_pence,
+    coupon_id: data.coupon_id ?? null,
+    coupon_code: data.coupon_code ?? null,
+  };
+
   const { data: row, error } = await supabase
     .from("bookings")
-    .insert({
-      service: data.service,
-      property_size: data.property_size,
-      date: data.date,
-      time: data.time,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      postcode: data.postcode ?? null,
-      address: data.address,
-      notes: data.notes,
-      price: data.price,
-      payment_status: data.payment_status,
-      clerk_user_id: data.clerk_user_id ?? null,
-      subtotal_pence: data.subtotal_pence,
-      discount_pence: data.discount_pence,
-      coupon_id: data.coupon_id ?? null,
-      coupon_code: data.coupon_code ?? null,
-    })
+    .insert(payload)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (isMissingColumnError(error, "bookings", "postcode")) {
+      const { postcode: _postcode, ...fallbackPayload } = payload;
+      const { data: retryRow, error: retryError } = await supabase
+        .from("bookings")
+        .insert(fallbackPayload)
+        .select()
+        .single();
+
+      if (retryError) throw retryError;
+      return retryRow as BookingRow;
+    }
+    throw error;
+  }
   return row as BookingRow;
 }
 
