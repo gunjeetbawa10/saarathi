@@ -88,6 +88,7 @@ export async function POST(req: Request) {
 
     const { finalPence, discountPence, couponId, couponCode } = couponResult.result;
     const price = finalPence;
+    const normalizedEmail = data.email.trim().toLowerCase();
 
     const { userId } = await auth();
     if (userId) {
@@ -105,7 +106,7 @@ export async function POST(req: Request) {
       date: data.date.toISOString(),
       time: data.time,
       name: data.name,
-      email: data.email,
+      email: normalizedEmail,
       phone: data.phone,
       postcode: area.postcode,
       address: data.address,
@@ -131,7 +132,7 @@ export async function POST(req: Request) {
 
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
-      customer_email: data.email,
+      customer_email: normalizedEmail,
       line_items: [
         {
           price_data: {

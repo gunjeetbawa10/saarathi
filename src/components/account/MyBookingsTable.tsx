@@ -55,6 +55,7 @@ export function MyBookingsTable({
             <th className="px-4 py-3">Address</th>
             <th className="px-4 py-3">Price</th>
             <th className="px-4 py-3">Payment</th>
+            <th className="px-4 py-3">Details</th>
           </tr>
         </thead>
         <tbody>
@@ -77,6 +78,14 @@ export function MyBookingsTable({
               <td className="px-4 py-3 font-medium">{formatGbpFromPence(b.price)}</td>
               <td className="px-4 py-3">
                 <StatusBadge status={b.paymentStatus} />
+              </td>
+              <td className="px-4 py-3">
+                <Link
+                  href={`/account/bookings/${b.id}`}
+                  className="text-xs font-semibold text-primary hover:underline"
+                >
+                  View
+                </Link>
               </td>
             </tr>
           ))}

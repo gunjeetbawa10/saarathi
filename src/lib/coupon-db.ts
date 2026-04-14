@@ -16,13 +16,44 @@ export async function getCouponByCode(normalizedCode: string): Promise<CouponRow
 
 export async function listCouponsDesc(): Promise<CouponRow[]> {
   const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("coupons")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const [couponRes, bookingRes] = await Promise.all([
+    supabase.from("coupons").select("*").order("created_at", { ascending: false }),
+    supabase
+      .from("bookings")
+      .select("coupon_id, coupon_code")
+      .eq("payment_status", "paid")
+      .or("coupon_id.not.is.null,coupon_code.not.is.null"),
+  ]);
 
-  if (error) throw error;
-  return (data ?? []) as CouponRow[];
+  if (couponRes.error) throw couponRes.error;
+  if (bookingRes.error) throw bookingRes.error;
+
+  const coupons = (couponRes.data ?? []) as CouponRow[];
+  const usageByCouponId = new Map<string, number>();
+  const usageByCouponCode = new Map<string, number>();
+
+  for (const row of bookingRes.data ?? []) {
+    const couponId = typeof row.coupon_id === "string" ? row.coupon_id : null;
+    const couponCode =
+      typeof row.coupon_code === "string" ? row.coupon_code.trim().toUpperCase() : null;
+    if (couponId) {
+      usageByCouponId.set(couponId, (usageByCouponId.get(couponId) ?? 0) + 1);
+    } else if (couponCode) {
+      usageByCouponCode.set(couponCode, (usageByCouponCode.get(couponCode) ?? 0) + 1);
+    }
+  }
+
+  return coupons.map((coupon) => {
+    const code = coupon.code.trim().toUpperCase();
+    const derived =
+      usageByCouponId.get(coupon.id) ??
+      usageByCouponCode.get(code) ??
+      0;
+    return {
+      ...coupon,
+      uses_count: Math.max(coupon.uses_count ?? 0, derived),
+    };
+  });
 }
 
 export type InsertCouponInput = {

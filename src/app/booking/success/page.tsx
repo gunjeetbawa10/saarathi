@@ -1,16 +1,30 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
+import { syncBookingPaymentFromCheckoutSession } from "@/lib/booking-payment-sync";
 
 export const metadata: Metadata = {
   title: "Booking confirmed",
   robots: { index: false, follow: false },
 };
 
-export default function BookingSuccessPage({
+export default async function BookingSuccessPage({
   searchParams,
 }: {
   searchParams: { session_id?: string };
 }) {
+  let paymentSyncMessage: string | null = null;
+  if (searchParams.session_id) {
+    try {
+      const sync = await syncBookingPaymentFromCheckoutSession(searchParams.session_id);
+      if (sync.changed) {
+        paymentSyncMessage = "Payment status synced successfully.";
+      }
+    } catch (e) {
+      console.error("[booking/success] payment sync failed", e);
+      paymentSyncMessage = "Payment is complete. Booking status will refresh shortly.";
+    }
+  }
+
   return (
     <div className="mx-auto max-w-xl px-4 py-24 text-center md:py-32">
       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">
@@ -27,6 +41,9 @@ export default function BookingSuccessPage({
         <p className="mt-4 text-xs text-ink/40">
           Reference: {searchParams.session_id.slice(0, 20)}…
         </p>
+      )}
+      {paymentSyncMessage && (
+        <p className="mt-3 text-xs text-primary/85">{paymentSyncMessage}</p>
       )}
       <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
         <Button href="/">Back home</Button>

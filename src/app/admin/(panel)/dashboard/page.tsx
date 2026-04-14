@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { formatGbpFromPence } from "@/lib/booking-pricing";
 import { getAdminDashboardStats } from "@/lib/supabase/server";
+import { listRecentCheckoutSessions } from "@/lib/admin-stripe";
+import { syncBookingPaymentFromCheckoutSession } from "@/lib/booking-payment-sync";
 
 export const metadata: Metadata = {
   title: "Admin: Overview",
@@ -31,6 +33,20 @@ function StatCard({
 }
 
 export default async function AdminDashboardPage() {
+  const stripeSessions = await listRecentCheckoutSessions(20);
+  const paidSessionsToSync = stripeSessions.filter(
+    (s) => s.paymentStatus === "paid" && Boolean(s.bookingId)
+  );
+  await Promise.all(
+    paidSessionsToSync.map(async (session) => {
+      try {
+        await syncBookingPaymentFromCheckoutSession(session.id);
+      } catch (e) {
+        console.error("[admin/dashboard] payment reconcile failed", e);
+      }
+    })
+  );
+
   let stats: Awaited<ReturnType<typeof getAdminDashboardStats>> | null = null;
   try {
     stats = await getAdminDashboardStats();

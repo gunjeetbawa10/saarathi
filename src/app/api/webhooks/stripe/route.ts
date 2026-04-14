@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
-import { incrementCouponUse } from "@/lib/coupon-db";
-import { markBookingPaidIfPending } from "@/lib/supabase/server";
-import { bookingFromRow } from "@/types/booking";
+import { syncBookingPaymentFromCheckoutSession } from "@/lib/booking-payment-sync";
 import {
   sendBookingConfirmedToCustomer,
   sendNewBookingToAdmin,
@@ -34,30 +32,21 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const bookingId = session.metadata?.bookingId;
-    if (!bookingId) {
+    if (!session.id) {
       return NextResponse.json({ received: true });
     }
 
     try {
-      const updated = await markBookingPaidIfPending(bookingId, session.id);
+      const synced = await syncBookingPaymentFromCheckoutSession(session.id);
 
-      if (updated) {
-        if (updated.coupon_id) {
-          try {
-            await incrementCouponUse(updated.coupon_id);
-          } catch (e) {
-            console.error("Coupon use increment failed", e);
-          }
-        }
-        const booking = bookingFromRow(updated);
+      if (synced.booking && synced.changed) {
         try {
-          await sendBookingConfirmedToCustomer(booking);
+          await sendBookingConfirmedToCustomer(synced.booking);
         } catch (e) {
           console.error("Customer email failed", e);
         }
         try {
-          await sendNewBookingToAdmin(booking);
+          await sendNewBookingToAdmin(synced.booking);
         } catch (e) {
           console.error("Admin email failed", e);
         }

@@ -175,6 +175,36 @@ export async function listBookingsForClerkUser(
   return (data ?? []) as BookingRow[];
 }
 
+/** Bookings for known customer emails (useful for guest checkout history). */
+export async function listBookingsForEmails(
+  emails: string[],
+  limit = 200
+): Promise<BookingRow[]> {
+  const unique = Array.from(
+    new Set(
+      emails
+        .map((email) => email.trim())
+        .filter(Boolean)
+    )
+  );
+  if (unique.length === 0) return [];
+
+  const supabase = getSupabaseAdmin();
+  const emailOrFilter = unique.map((email) => `email.ilike.${email}`).join(",");
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .or(emailOrFilter)
+    .order("date", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[listBookingsForEmails]", error.message, error);
+    throw error;
+  }
+  return (data ?? []) as BookingRow[];
+}
+
 /** Sets `paid` only if still `pending`; returns the updated row or null if no change. */
 export async function markBookingPaidIfPending(
   bookingId: string,
@@ -190,6 +220,18 @@ export async function markBookingPaidIfPending(
     .eq("id", bookingId)
     .eq("payment_status", "pending")
     .select()
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? (data as BookingRow) : null;
+}
+
+export async function getBookingById(bookingId: string): Promise<BookingRow | null> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*")
+    .eq("id", bookingId)
     .maybeSingle();
 
   if (error) throw error;

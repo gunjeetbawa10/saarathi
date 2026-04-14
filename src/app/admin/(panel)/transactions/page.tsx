@@ -4,6 +4,7 @@ import { formatGbpFromPence } from "@/lib/booking-pricing";
 import { listBookingsDesc } from "@/lib/supabase/server";
 import { bookingFromRow } from "@/types/booking";
 import { listRecentCheckoutSessions } from "@/lib/admin-stripe";
+import { syncBookingPaymentFromCheckoutSession } from "@/lib/booking-payment-sync";
 
 export const metadata: Metadata = {
   title: "Admin: Payments",
@@ -20,6 +21,20 @@ function formatStripeAmount(amount: number | null, currency: string | null) {
 }
 
 export default async function AdminTransactionsPage() {
+  const stripeSessions = await listRecentCheckoutSessions(40);
+  const paidSessionsToSync = stripeSessions.filter(
+    (s) => s.paymentStatus === "paid" && Boolean(s.bookingId)
+  );
+  await Promise.all(
+    paidSessionsToSync.map(async (session) => {
+      try {
+        await syncBookingPaymentFromCheckoutSession(session.id);
+      } catch (e) {
+        console.error("[admin/transactions] payment reconcile failed", e);
+      }
+    })
+  );
+
   let paidFromDb: ReturnType<typeof bookingFromRow>[] = [];
   try {
     const rows = await listBookingsDesc(500);
@@ -34,8 +49,6 @@ export default async function AdminTransactionsPage() {
       </div>
     );
   }
-
-  const stripeSessions = await listRecentCheckoutSessions(40);
 
   return (
     <div className="px-4 py-10 md:px-8">

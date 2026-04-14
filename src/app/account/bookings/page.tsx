@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { syncClerkUserToSupabase } from "@/lib/clerk-customer-sync";
-import { listBookingsForClerkUser } from "@/lib/supabase/server";
+import { listBookingsForClerkUser, listBookingsForEmails } from "@/lib/supabase/server";
 import { bookingFromRow } from "@/types/booking";
 import { partitionUpcomingAndPast } from "@/lib/booking-lists";
 import { Reveal } from "@/components/motion/Reveal";
@@ -37,8 +37,21 @@ export default async function AccountBookingsPage() {
   let loadError: string | null = null;
 
   try {
-    const rows = await listBookingsForClerkUser(userId);
-    const bookings = rows.map(bookingFromRow);
+    const clerkRows = await listBookingsForClerkUser(userId);
+    const accountEmails = Array.from(
+      new Set(
+        (user?.emailAddresses ?? [])
+          .map((e) => e.emailAddress.trim())
+          .filter(Boolean)
+      )
+    );
+    const emailRows = accountEmails.length
+      ? await listBookingsForEmails(accountEmails)
+      : [];
+    const byId = new Map(
+      [...clerkRows, ...emailRows].map((row) => [row.id, row] as const)
+    );
+    const bookings = Array.from(byId.values()).map(bookingFromRow);
     const split = partitionUpcomingAndPast(bookings);
     upcoming = split.upcoming;
     past = split.past;
@@ -84,8 +97,8 @@ export default async function AccountBookingsPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Account</p>
             <h1 className="mt-3 font-display text-4xl text-primary md:text-5xl">My bookings</h1>
             <p className="mt-4 max-w-2xl text-ink/70">
-              Upcoming visits and your history. Bookings you complete while signed in are listed
-              here; guest checkouts are not linked to your account.
+              Upcoming visits and your history. We link bookings made while signed in and past
+              guest checkouts that match your account email.
             </p>
           </Reveal>
         </div>

@@ -11,8 +11,8 @@ Production-ready luxury cleaning and property management website: **Next.js 14 (
 ## Quick start
 
 ```bash
-cp .env.example .env
-# Edit .env with Supabase URL, service role key, Stripe, etc.
+cp .env.example .env.local
+# Edit .env.local (gitignored). Longer setup notes belong in that file; .env.example lists keys only.
 
 npm install
 npm run dev
@@ -29,7 +29,7 @@ This creates the `bookings` table with **Row Level Security** enabled and **no**
 
 ## Environment variables
 
-See `.env.example`. Minimum for bookings + payments:
+Use **`.env.local`** locally (see comments there). **`.env.example`** is a short key checklist for new clones. Minimum for bookings + payments:
 
 | Variable | Purpose |
 |----------|---------|
@@ -38,8 +38,9 @@ See `.env.example`. Minimum for bookings + payments:
 | `NEXT_PUBLIC_SITE_URL` | Canonical site URL (no trailing slash) |
 | `STRIPE_SECRET_KEY` | Stripe secret key |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
-| `RESEND_API_KEY` | Resend API key |
-| `RESEND_FROM_EMAIL` | Verified sender |
+| `SMTP_USER` / `SMTP_PASS` | Optional — Google Workspace SMTP (overrides Resend when both set) |
+| `RESEND_API_KEY` | Optional — Resend API key if not using SMTP |
+| `RESEND_FROM_EMAIL` | Verified sender (Resend) |
 | `NEXT_PUBLIC_HYGRAPH_ENDPOINT` | Hygraph Content API URL |
 | `HYGRAPH_API_TOKEN` | Optional if API is public read |
 | `ADMIN_SECRET` | Secret query param for `/admin/bookings` |

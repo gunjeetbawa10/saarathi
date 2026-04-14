@@ -39,12 +39,6 @@ export default async function AdminLoginPage({
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-16">
       <h1 className="font-display text-2xl text-primary">Admin sign in</h1>
-      <p className="mt-2 text-sm text-ink/60">
-        Use your admin username and password. Default after migration:{" "}
-        <code className="rounded bg-primary/10 px-1">admin</code> /{" "}
-        <code className="rounded bg-primary/10 px-1">admin</code>. Change the hash in
-        Supabase when ready.
-      </p>
       <AdminLoginForm nextPath={nextDefault} />
     </div>
   );

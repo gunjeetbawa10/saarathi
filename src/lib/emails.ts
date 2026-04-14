@@ -1,8 +1,20 @@
 import { format } from "date-fns";
 import type { Booking, PropertySize } from "@/types/booking";
-import { getResend } from "./resend";
+import {
+  getTransactionalFromEmail,
+  sendTransactionalMail,
+} from "./mail-send";
 import { CONTACT, SITE_NAME, SITE_URL } from "./constants";
 import { formatGbpFromPence, serviceLabel } from "./booking-pricing";
+
+/** Replies go here (e.g. your Google Workspace inbox). */
+function replyToAddress(): string {
+  const env =
+    process.env.EMAIL_REPLY_TO?.trim() ??
+    process.env.RESEND_REPLY_TO?.trim() ??
+    "";
+  return env.length > 0 ? env : CONTACT.email;
+}
 
 function propertyLabel(size: PropertySize): string {
   const m: Record<PropertySize, string> = {
@@ -28,17 +40,20 @@ function bookingDetailsHtml(b: Booking): string {
 }
 
 export async function sendBookingConfirmedToCustomer(booking: Booking) {
-  const from = process.env.RESEND_FROM_EMAIL;
+  const from = getTransactionalFromEmail();
   if (!from) {
-    console.warn("RESEND_FROM_EMAIL not set; skipping customer email");
+    console.warn(
+      "Mail from not set: add SMTP_USER+SMTP_PASS (+ optional SMTP_FROM) or RESEND_FROM_EMAIL; skipping customer email"
+    );
     return;
   }
-  const resend = getResend();
-  await resend.emails.send({
-    from,
-    to: booking.email,
-    subject: `Your ${SITE_NAME} booking is confirmed`,
-    html: `
+  try {
+    await sendTransactionalMail({
+      from,
+      to: booking.email,
+      replyTo: replyToAddress(),
+      subject: `Your ${SITE_NAME} booking is confirmed`,
+      html: `
       <div style="font-family: Georgia, serif; color: #1a1a1a; line-height: 1.6;">
         <h1 style="color: #0b3b24;">Booking confirmed</h1>
         <p>Thank you, ${booking.name}. Your payment was received and your appointment is confirmed.</p>
@@ -47,22 +62,29 @@ export async function sendBookingConfirmedToCustomer(booking: Booking) {
         <p style="color: #666; font-size: 12px;">${SITE_NAME} · ${CONTACT.location}</p>
       </div>
     `,
-  });
+    });
+  } catch (e) {
+    console.error("sendBookingConfirmedToCustomer failed", e);
+    throw e;
+  }
 }
 
 export async function sendNewBookingToAdmin(booking: Booking) {
-  const from = process.env.RESEND_FROM_EMAIL;
+  const from = getTransactionalFromEmail();
   const to = process.env.ADMIN_NOTIFICATION_EMAIL ?? CONTACT.email;
   if (!from) {
-    console.warn("RESEND_FROM_EMAIL not set; skipping admin email");
+    console.warn(
+      "Mail from not set: add SMTP_USER+SMTP_PASS (+ optional SMTP_FROM) or RESEND_FROM_EMAIL; skipping admin email"
+    );
     return;
   }
-  const resend = getResend();
-  await resend.emails.send({
-    from,
-    to,
-    subject: `New paid booking: ${serviceLabel(booking.service)}`,
-    html: `
+  try {
+    await sendTransactionalMail({
+      from,
+      to,
+      replyTo: replyToAddress(),
+      subject: `New paid booking: ${serviceLabel(booking.service)}`,
+      html: `
       <div style="font-family: sans-serif; color: #1a1a1a;">
         <h2>New booking received</h2>
         <p><strong>${booking.name}</strong> · ${booking.email} · ${booking.phone}</p>
@@ -70,5 +92,9 @@ export async function sendNewBookingToAdmin(booking: Booking) {
         <p><a href="${SITE_URL}/admin/bookings">Open admin bookings</a> (use your configured secret in the URL if required).</p>
       </div>
     `,
-  });
+    });
+  } catch (e) {
+    console.error("sendNewBookingToAdmin failed", e);
+    throw e;
+  }
 }
