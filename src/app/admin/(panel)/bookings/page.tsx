@@ -6,6 +6,7 @@ import { bookingFromRow } from "@/types/booking";
 import { formatGbpFromPence, serviceLabel } from "@/lib/booking-pricing";
 import { listRecentCheckoutSessions } from "@/lib/admin-stripe";
 import { syncBookingPaymentFromCheckoutSession } from "@/lib/booking-payment-sync";
+import { AdminBookingsCalendar } from "@/components/admin/AdminBookingsCalendar";
 
 export const metadata: Metadata = {
   title: "Admin: Bookings",
@@ -89,6 +90,17 @@ export default async function AdminBookingsPage() {
           <code className="rounded bg-primary/10 px-1">SUPABASE_SERVICE_ROLE_KEY</code>
           . Recent Stripe checkouts are shown below as fallback.
         </p>
+      )}
+      {bookings.length > 0 && (
+        <AdminBookingsCalendar
+          bookings={bookings.map((b) => ({
+            id: b.id,
+            name: b.name,
+            time: b.time,
+            dateIso: b.date.toISOString(),
+            paymentStatus: b.paymentStatus,
+          }))}
+        />
       )}
       <div className="mt-8 overflow-x-auto rounded-2xl border border-primary/10 bg-white shadow-card">
         <table className="w-full min-w-[720px] text-left text-sm">

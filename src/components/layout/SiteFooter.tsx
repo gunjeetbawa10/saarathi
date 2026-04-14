@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { CONTACT, SITE_NAME } from "@/lib/constants";
+import { CONTACT, SITE_NAME, SOCIAL_LINKS } from "@/lib/constants";
 
 const social = [
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "Facebook", href: "https://facebook.com" },
-  { label: "LinkedIn", href: "https://linkedin.com" },
+  { label: "Facebook", href: SOCIAL_LINKS.facebook },
+  { label: "TikTok", href: SOCIAL_LINKS.tiktok },
 ];
 
 export function SiteFooter() {

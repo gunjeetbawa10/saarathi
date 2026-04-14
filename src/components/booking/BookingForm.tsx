@@ -24,6 +24,12 @@ type ServiceAreaUi =
   | { status: "ok"; distanceMiles: number }
   | { status: "fail"; message: string };
 
+type AddressLookupUi =
+  | { status: "idle"; suggestions: string[]; error: null }
+  | { status: "loading"; suggestions: string[]; error: null }
+  | { status: "ok"; suggestions: string[]; error: null }
+  | { status: "fail"; suggestions: string[]; error: string };
+
 const services: { value: ServiceType; label: string }[] = [
   { value: "DEEP_CLEAN", label: "Deep Clean" },
   { value: "AIRBNB", label: "Airbnb Turnover" },
@@ -65,6 +71,11 @@ export function BookingForm({
   const [couponError, setCouponError] = useState<string | null>(null);
   const [couponApplying, setCouponApplying] = useState(false);
   const [serviceArea, setServiceArea] = useState<ServiceAreaUi>({ status: "idle" });
+  const [addressLookup, setAddressLookup] = useState<AddressLookupUi>({
+    status: "idle",
+    suggestions: [],
+    error: null,
+  });
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
@@ -87,6 +98,7 @@ export function BookingForm({
   const propertySize = form.watch("propertySize");
   const selectedDate = form.watch("date");
   const postcodeField = form.watch("postcode");
+  const postcodeTrimmed = postcodeField.trim();
 
   const pricePence = useMemo(
     () => calculateBookingPricePence(service, propertySize),
@@ -147,7 +159,7 @@ export function BookingForm({
   }, [selectedDate, form]);
 
   useEffect(() => {
-    const raw = postcodeField?.trim() ?? "";
+    const raw = postcodeTrimmed;
     if (!raw) {
       setServiceArea({ status: "idle" });
       return;
@@ -187,7 +199,65 @@ export function BookingForm({
       })();
     }, 450);
     return () => window.clearTimeout(handle);
-  }, [postcodeField]);
+  }, [postcodeTrimmed]);
+
+  useEffect(() => {
+    const raw = postcodeTrimmed;
+    if (raw.length < 5) {
+      setAddressLookup({ status: "idle", suggestions: [], error: null });
+      return;
+    }
+
+    let cancelled = false;
+    setAddressLookup((prev) => ({
+      status: "loading",
+      suggestions: prev.suggestions,
+      error: null,
+    }));
+
+    const handle = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const res = await fetch("/api/bookings/address-lookup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ postcode: raw }),
+          });
+          const data = (await res.json()) as {
+            error?: string;
+            suggestions?: string[];
+          };
+          if (cancelled) return;
+          if (!res.ok) {
+            setAddressLookup({
+              status: "fail",
+              suggestions: [],
+              error: data.error ?? "Could not fetch address suggestions.",
+            });
+            return;
+          }
+          const suggestions = (data.suggestions ?? []).slice(0, 6);
+          setAddressLookup({
+            status: "ok",
+            suggestions,
+            error: null,
+          });
+        } catch {
+          if (cancelled) return;
+          setAddressLookup({
+            status: "fail",
+            suggestions: [],
+            error: "Could not fetch address suggestions.",
+          });
+        }
+      })();
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [postcodeTrimmed]);
 
   useEffect(() => {
     if (!selectedDate) return;
@@ -463,10 +533,7 @@ export function BookingForm({
           )}
           {serviceArea.status === "ok" && (
             <p className="mt-2 text-sm text-primary">
-              You&apos;re inside our service area
-              {serviceArea.distanceMiles > 0
-                ? ` (about ${serviceArea.distanceMiles.toFixed(0)} miles from our base).`
-                : "."}
+              You&apos;re inside our service area.
             </p>
           )}
           {serviceArea.status === "fail" && (
@@ -474,6 +541,43 @@ export function BookingForm({
               {serviceArea.message}
             </p>
           )}
+          {addressLookup.status === "loading" && (
+            <p className="mt-2 text-sm text-ink/60">Finding matching addresses…</p>
+          )}
+          {addressLookup.error && (
+            <p className="mt-2 text-sm text-ink/60">{addressLookup.error}</p>
+          )}
+          {addressLookup.suggestions.length > 0 && (
+            <div className="mt-3 rounded-2xl border border-primary/10 bg-white p-2">
+              <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wider text-ink/50">
+                Select address
+              </p>
+              <div className="space-y-1">
+                {addressLookup.suggestions.map((line) => (
+                  <button
+                    key={line}
+                    type="button"
+                    onClick={() =>
+                      form.setValue("address", line, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                    className="w-full rounded-xl px-3 py-2 text-left text-sm text-ink transition hover:bg-cream"
+                  >
+                    {line}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {addressLookup.status === "ok" &&
+            addressLookup.suggestions.length === 0 &&
+            postcodeTrimmed.length >= 5 && (
+              <p className="mt-2 text-sm text-ink/60">
+                No address suggestions found for this postcode. Please enter your address manually.
+              </p>
+            )}
         </div>
 
         <div>

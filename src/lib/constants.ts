@@ -16,6 +16,14 @@ export const CONTACT = {
   location: "Bangor LL57, UK",
 } as const;
 
+/** Footer social links (override TikTok via env if needed). */
+export const SOCIAL_LINKS = {
+  facebook: "https://www.facebook.com/profile.php?id=61574260469688",
+  tiktok:
+    process.env.NEXT_PUBLIC_TIKTOK_URL?.trim() ||
+    "https://www.tiktok.com/@saarathiservices",
+} as const;
+
 function numEnv(key: string, fallback: number): number {
   const v = process.env[key];
   if (v == null || v === "") return fallback;
