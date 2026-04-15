@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@clerk/nextjs";
 import { SITE_NAME } from "@/lib/constants";
 import { ClerkAuthNav } from "@/components/auth/ClerkAuthNav";
 
 const nav = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
-  { href: "/booking", label: "Book" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -17,6 +17,8 @@ const nav = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { isSignedIn } = useAuth();
+  const bookHref = isSignedIn ? "/booking" : "/sign-in?redirect_url=%2Fbooking";
 
   return (
     <header className="sticky top-0 z-50 border-b border-primary/10 bg-cream/90 backdrop-blur-md">
@@ -35,12 +37,18 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <Link
+            href={bookHref}
+            className="text-sm font-medium text-ink/80 transition-colors hover:text-primary"
+          >
+            Book
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
           <ClerkAuthNav />
           <Link
-            href="/booking"
+            href={bookHref}
             className="hidden rounded-2xl bg-accent px-5 py-2.5 text-sm font-semibold text-ink shadow-card transition hover:-translate-y-0.5 hover:shadow-luxury md:inline-flex"
           >
             Request a quote
@@ -86,11 +94,18 @@ export function SiteHeader() {
                 </Link>
               ))}
               <Link
-                href="/booking"
+                href={bookHref}
                 className="mt-2 rounded-2xl bg-accent py-3 text-center text-sm font-semibold text-ink"
                 onClick={() => setOpen(false)}
               >
                 Request a quote
+              </Link>
+              <Link
+                href={bookHref}
+                className="rounded-xl px-3 py-3 text-base font-medium text-ink hover:bg-primary/5"
+                onClick={() => setOpen(false)}
+              >
+                Book
               </Link>
             </nav>
           </motion.div>

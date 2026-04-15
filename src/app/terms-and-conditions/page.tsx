@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
@@ -101,7 +102,21 @@ export default function TermsAndConditionsPage() {
             All quotes are estimates based on normal UK room dimensions and an
             average level of soiling.
           </p>
+          <p className="mt-4">
+            Our{" "}
+            <Link
+              href="/fair-usage-room-size-policy"
+              className="font-medium text-primary underline-offset-2 hover:underline"
+            >
+              Fair Usage &amp; Room Size Policy
+            </Link>{" "}
+            forms part of these Terms and applies to all bookings.
+          </p>
           <ul className="mt-4 list-disc space-y-2 pl-6">
+            <li>
+              A standard room is defined as up to 15 square metres; open-plan or
+              oversized spaces may be charged as two or more rooms.
+            </li>
             <li>
               We inspect on arrival and may re-price where room size, occupancy,
               clutter, staining, waste, odour, or risk materially exceeds the

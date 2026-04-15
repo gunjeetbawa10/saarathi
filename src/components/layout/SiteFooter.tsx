@@ -82,6 +82,14 @@ export function SiteFooter() {
                 Cancellation &amp; Refund
               </Link>
             </li>
+            <li>
+              <Link
+                href="/fair-usage-room-size-policy"
+                className="text-white/85 hover:text-accent"
+              >
+                Fair Usage &amp; Room Size
+              </Link>
+            </li>
           </ul>
           <div className="mt-6 flex gap-4">
             {social.map((s) => (

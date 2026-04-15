@@ -1,6 +1,7 @@
 export const SITE_NAME = "Saarathi Services";
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const rawSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://saarathiservices.co.uk";
+export const SITE_URL = rawSiteUrl.replace(/\/+$/, "");
 
 /** First-visit welcome popup; create a matching active coupon in admin for checkout. */
 export const WELCOME_COUPON_CODE = "WELCOME10";
@@ -35,8 +36,8 @@ function numEnv(key: string, fallback: number): number {
 export const SERVICE_AREA_CENTRE_LAT = numEnv("SERVICE_AREA_CENTRE_LAT", 53.232315);
 export const SERVICE_AREA_CENTRE_LNG = numEnv("SERVICE_AREA_CENTRE_LNG", -4.174055);
 export const SERVICE_AREA_CENTRE_POSTCODE = "LL59 5LP";
-/** ~11 mi keeps most visits within about 30 minutes of the hub. Override via env. */
-export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 11);
+/** ~15 mi keeps most visits within about 30 minutes of the hub. Override via env. */
+export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 15);
 
 export const SERVICE_AREA_OUTSIDE_MESSAGE =
   "We’re not in operation at that postcode yet. We’re expanding across North Wales and beyond. Check back soon, or contact us to register your interest.";
