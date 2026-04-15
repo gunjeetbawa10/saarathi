@@ -23,6 +23,7 @@ import {
   sendBookingConfirmedToCustomer,
   sendNewBookingToAdmin,
 } from "@/lib/emails";
+import { bookingFromRow } from "@/types/booking";
 
 const BOOKING_TZ = "Europe/London";
 
@@ -123,16 +124,17 @@ export async function POST(req: Request) {
       coupon_id: couponId,
       coupon_code: couponCode,
     });
+    const bookingModel = bookingFromRow(booking);
 
     // Notify admin as soon as a booking is created (before payment completion).
     try {
-      await sendNewBookingToAdmin(booking);
+      await sendNewBookingToAdmin(bookingModel);
     } catch (e) {
       console.error("Admin booking-created email failed", e);
     }
     // Notify customer that booking request was received.
     try {
-      await sendBookingConfirmedToCustomer(booking);
+      await sendBookingConfirmedToCustomer(bookingModel);
     } catch (e) {
       console.error("Customer booking-received email failed", e);
     }
