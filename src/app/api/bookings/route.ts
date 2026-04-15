@@ -19,6 +19,10 @@ import {
 } from "@/lib/booking-slots";
 import { bookingApiSchema } from "@/validation/booking";
 import { checkPostcodeInServiceArea } from "@/lib/service-area";
+import {
+  sendBookingConfirmedToCustomer,
+  sendNewBookingToAdmin,
+} from "@/lib/emails";
 
 const BOOKING_TZ = "Europe/London";
 
@@ -119,6 +123,19 @@ export async function POST(req: Request) {
       coupon_id: couponId,
       coupon_code: couponCode,
     });
+
+    // Notify admin as soon as a booking is created (before payment completion).
+    try {
+      await sendNewBookingToAdmin(booking);
+    } catch (e) {
+      console.error("Admin booking-created email failed", e);
+    }
+    // Notify customer that booking request was received.
+    try {
+      await sendBookingConfirmedToCustomer(booking);
+    } catch (e) {
+      console.error("Customer booking-received email failed", e);
+    }
 
     const descParts = [
       `${format(data.date, "d MMM yyyy")} · ${data.time}`,
