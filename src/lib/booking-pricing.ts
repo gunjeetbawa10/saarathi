@@ -3,7 +3,7 @@ import type { BookingAddOn, PropertySize, ServiceType } from "@/types/booking";
 const BASE_PRICES: Record<ServiceType, number> = {
   DEEP_CLEAN: 10000,
   AIRBNB: 5000,
-  STANDARD: 6500,
+  STANDARD: 6000,
   OFFICE: 7000,
 };
 

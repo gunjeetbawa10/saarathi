@@ -63,7 +63,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     tagline: "Consistent excellence",
     description:
       "Recurring care tailored to your rhythm: polished living spaces without the operational noise.",
-    priceGbp: 65,
+    priceGbp: 60,
     image:
       "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80",
   },
