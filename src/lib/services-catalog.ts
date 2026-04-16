@@ -52,7 +52,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     tagline: "Guest-ready in hours",
     description:
       "Rapid, hotel-standard turnovers: linens, surfaces, and staging so your next five-star review is effortless.",
-    priceGbp: 65,
+    priceGbp: 50,
     image:
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80",
   },
@@ -63,7 +63,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     tagline: "Consistent excellence",
     description:
       "Recurring care tailored to your rhythm: polished living spaces without the operational noise.",
-    priceGbp: 85,
+    priceGbp: 65,
     image:
       "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&q=80",
   },
