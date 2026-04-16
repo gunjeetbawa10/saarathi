@@ -18,6 +18,16 @@ export const PropertySizeEnum = {
 
 export type PropertySize = (typeof PropertySizeEnum)[keyof typeof PropertySizeEnum];
 
+export const BookingAddOnEnum = {
+  FRIDGE_FREEZER_CLEAN: "FRIDGE_FREEZER_CLEAN",
+  OVEN_DEEP_CLEAN: "OVEN_DEEP_CLEAN",
+  EXTRA_BATHROOM: "EXTRA_BATHROOM",
+  MICROWAVE_INTERNAL: "MICROWAVE_INTERNAL",
+  INTERIOR_WINDOWS: "INTERIOR_WINDOWS",
+} as const;
+
+export type BookingAddOn = (typeof BookingAddOnEnum)[keyof typeof BookingAddOnEnum];
+
 export const PaymentStatusEnum = {
   pending: "pending",
   paid: "paid",
@@ -48,6 +58,7 @@ export type BookingRow = {
   discount_pence: number;
   coupon_id: string | null;
   coupon_code: string | null;
+  add_ons: string[] | null;
 };
 
 /** CamelCase booking used in the app (emails, admin UI). */
@@ -72,7 +83,14 @@ export type Booking = {
   discountPence: number;
   couponId: string | null;
   couponCode: string | null;
+  addOns: BookingAddOn[];
 };
+
+function toKnownAddOns(raw: string[] | null | undefined): BookingAddOn[] {
+  if (!raw) return [];
+  const allowed = new Set(Object.values(BookingAddOnEnum));
+  return raw.filter((item): item is BookingAddOn => allowed.has(item as BookingAddOn));
+}
 
 export function bookingFromRow(row: BookingRow): Booking {
   return {
@@ -96,5 +114,6 @@ export function bookingFromRow(row: BookingRow): Booking {
     discountPence: row.discount_pence ?? 0,
     couponId: row.coupon_id ?? null,
     couponCode: row.coupon_code ?? null,
+    addOns: toKnownAddOns(row.add_ons),
   };
 }

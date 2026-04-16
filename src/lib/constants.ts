@@ -36,8 +36,8 @@ function numEnv(key: string, fallback: number): number {
 export const SERVICE_AREA_CENTRE_LAT = numEnv("SERVICE_AREA_CENTRE_LAT", 53.232315);
 export const SERVICE_AREA_CENTRE_LNG = numEnv("SERVICE_AREA_CENTRE_LNG", -4.174055);
 export const SERVICE_AREA_CENTRE_POSTCODE = "LL59 5LP";
-/** ~15 mi keeps most visits within about 30 minutes of the hub. Override via env. */
-export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 15);
+/** ~20 mi keeps most visits within about 30 minutes of the hub. Override via env. */
+export const SERVICE_AREA_RADIUS_MILES = numEnv("SERVICE_AREA_RADIUS_MILES", 20);
 
 export const SERVICE_AREA_OUTSIDE_MESSAGE =
   "We’re not in operation at that postcode yet. We’re expanding across North Wales and beyond. Check back soon, or contact us to register your interest.";

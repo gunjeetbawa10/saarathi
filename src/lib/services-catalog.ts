@@ -24,6 +24,7 @@ export type ServiceCard = {
   description: string;
   priceGbp: number;
   image: string;
+  highlights?: string[];
 };
 
 export const SERVICE_CARDS: ServiceCard[] = [
@@ -34,7 +35,13 @@ export const SERVICE_CARDS: ServiceCard[] = [
     tagline: "The complete reset",
     description:
       "Top-to-bottom detail for homes that deserve a fresh start: fixtures, floors, and finishes brought back to showroom calm.",
-    priceGbp: 150,
+    priceGbp: 100,
+    highlights: [
+      "1 Bedroom (Base): £100",
+      "2 Bedrooms: £120",
+      "3 Bedrooms: £140",
+      "4 Bedrooms: £160",
+    ],
     image:
       "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80",
   },
@@ -64,10 +71,15 @@ export const SERVICE_CARDS: ServiceCard[] = [
     slug: "office",
     service: "OFFICE",
     title: "Executive Office Cleaning",
-    tagline: "Boardroom quiet",
+    tagline: "Boardroom quiet. Discreet after-hours service.",
     description:
-      "Discreet, after-hours service for premium workspaces, presentation-ready every morning.",
-    priceGbp: 95,
+      "Premium after-hours care for workspaces that need quiet, consistent standards and a spotless first impression every morning.",
+    priceGbp: 70,
+    highlights: [
+      "Small Office (1-2 Rooms): From £70",
+      "Medium Office (3-5 Rooms): From £110",
+      "Large Office (6+ Rooms): Contact for Quote",
+    ],
     image:
       "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
   },

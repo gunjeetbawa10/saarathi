@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { BookingRow } from "@/types/booking";
+import type { BookingAddOn } from "@/types/booking";
 import type { ContactSubmissionRow, NewsletterSignupRow } from "@/types/leads";
 import type {
   AdminCredentialRow,
@@ -63,6 +64,7 @@ export type InsertBookingInput = {
   discount_pence: number;
   coupon_id?: string | null;
   coupon_code?: string | null;
+  add_ons?: BookingAddOn[];
 };
 
 export async function insertBooking(data: InsertBookingInput): Promise<BookingRow> {
@@ -86,6 +88,7 @@ export async function insertBooking(data: InsertBookingInput): Promise<BookingRo
     discount_pence: data.discount_pence,
     coupon_id: data.coupon_id ?? null,
     coupon_code: data.coupon_code ?? null,
+    add_ons: data.add_ons ?? [],
   };
 
   const { data: row, error } = await supabase

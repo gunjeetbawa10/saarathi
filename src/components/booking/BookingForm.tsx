@@ -6,12 +6,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { DayPicker } from "react-day-picker";
 import { addDays, format, startOfDay } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
-import type { PropertySize, ServiceType } from "@/types/booking";
+import type { BookingAddOn, PropertySize, ServiceType } from "@/types/booking";
 import {
   bookingFormSchema,
   type BookingFormValues,
 } from "@/validation/booking";
 import {
+  addOnLabel,
+  addOnPricePence,
   calculateBookingPricePence,
   formatGbpFromPence,
   serviceLabel,
@@ -42,6 +44,24 @@ const sizes: { value: PropertySize; label: string }[] = [
   { value: "TWO_BED", label: "2 bedrooms (+£20)" },
   { value: "THREE_BED", label: "3 bedrooms (+£40)" },
   { value: "FOUR_PLUS", label: "4+ bedrooms (+£60)" },
+];
+
+const addOnChoices: {
+  value: BookingAddOn;
+  label: string;
+  priceLabel: string;
+  detail?: string;
+}[] = [
+  {
+    value: "FRIDGE_FREEZER_CLEAN",
+    label: "Fridge / Freezer Clean",
+    priceLabel: "+£20",
+    detail: "Internal deep clean & sanitisation",
+  },
+  { value: "OVEN_DEEP_CLEAN", label: "Oven Deep Clean", priceLabel: "+£25" },
+  { value: "EXTRA_BATHROOM", label: "Extra Toilet/Bathroom", priceLabel: "+£20" },
+  { value: "MICROWAVE_INTERNAL", label: "Microwave (Internal)", priceLabel: "+£10" },
+  { value: "INTERIOR_WINDOWS", label: "Interior Windows", priceLabel: "From +£20" },
 ];
 
 const TZ = "Europe/London";
@@ -91,6 +111,7 @@ export function BookingForm({
       address: "",
       notes: "",
       couponCode: "",
+      addOns: [],
     },
   });
 
@@ -98,11 +119,16 @@ export function BookingForm({
   const propertySize = form.watch("propertySize");
   const selectedDate = form.watch("date");
   const postcodeField = form.watch("postcode");
+  const addOns = form.watch("addOns");
   const postcodeTrimmed = postcodeField.trim();
+  const selectedAddOns = useMemo(
+    () => Array.from(new Set((addOns ?? []) as BookingAddOn[])),
+    [addOns]
+  );
 
   const pricePence = useMemo(
-    () => calculateBookingPricePence(service, propertySize),
-    [service, propertySize]
+    () => calculateBookingPricePence(service, propertySize, selectedAddOns),
+    [service, propertySize, selectedAddOns]
   );
 
   const finalPence = couponPreview?.finalPence ?? pricePence;
@@ -114,7 +140,7 @@ export function BookingForm({
   useEffect(() => {
     setCouponPreview(null);
     setCouponError(null);
-  }, [service, propertySize]);
+  }, [service, propertySize, selectedAddOns]);
 
   async function applyCoupon() {
     setCouponError(null);
@@ -128,6 +154,7 @@ export function BookingForm({
           code: code || undefined,
           service: form.getValues("service"),
           propertySize: form.getValues("propertySize"),
+          addOns: form.getValues("addOns"),
         }),
       });
       const data = (await res.json()) as {
@@ -417,6 +444,39 @@ export function BookingForm({
           )}
         </div>
 
+        <fieldset>
+          <legend className="text-xs font-semibold uppercase tracking-wider text-primary/80">
+            Additional services & add-ons
+          </legend>
+          <p className="mt-1 text-sm text-ink/60">
+            Customise your clean with these specific extras.
+          </p>
+          <div className="mt-3 space-y-2">
+            {addOnChoices.map((choice) => (
+              <label
+                key={choice.value}
+                className="flex cursor-pointer items-start justify-between gap-3 rounded-2xl border border-primary/10 bg-white px-4 py-3"
+              >
+                <span className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    value={choice.value}
+                    {...form.register("addOns")}
+                    className="mt-1 h-4 w-4 rounded border-primary/20 text-primary focus:ring-primary/30"
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-ink">{choice.label}</span>
+                    {choice.detail && (
+                      <span className="block text-xs text-ink/60">{choice.detail}</span>
+                    )}
+                  </span>
+                </span>
+                <span className="text-sm font-semibold text-primary">{choice.priceLabel}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-primary/80">
             Preferred date
@@ -635,6 +695,16 @@ export function BookingForm({
             <span>Service subtotal</span>
             <span>{formatGbpFromPence(pricePence)}</span>
           </div>
+          {selectedAddOns.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {selectedAddOns.map((addOn) => (
+                <div key={addOn} className="flex justify-between text-sm text-ink/70">
+                  <span>{addOnLabel(addOn)}</span>
+                  <span>{formatGbpFromPence(addOnPricePence(addOn))}</span>
+                </div>
+              ))}
+            </div>
+          )}
           {discountPence > 0 && (
             <div className="mt-2 flex justify-between text-sm text-primary">
               <span>Discount</span>

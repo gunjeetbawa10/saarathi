@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { startOfDay } from "date-fns";
-import { PropertySizeEnum, ServiceTypeEnum } from "@/types/booking";
+import { BookingAddOnEnum, PropertySizeEnum, ServiceTypeEnum } from "@/types/booking";
 
 const baseFields = {
   service: z.nativeEnum(ServiceTypeEnum),
@@ -16,6 +16,10 @@ const baseFields = {
   address: z.string().min(8, "Please enter a full address"),
   notes: z.string().optional(),
   couponCode: z.string().optional(),
+  addOns: z
+    .array(z.nativeEnum(BookingAddOnEnum))
+    .default([])
+    .transform((arr) => Array.from(new Set(arr))),
 };
 
 function futureDateRefine<T extends z.ZodTypeAny>(schema: T) {

@@ -22,7 +22,7 @@ export function ServicesPreviewSection() {
             for calm, consistent results.
           </p>
           <p className="mt-5 inline-flex max-w-full rounded-2xl border border-accent/35 bg-accent/10 px-4 py-3 text-sm font-medium text-primary md:text-base">
-            Fixed prices on every package. No hidden charges at checkout.
+            Transparent pricing on every package. No hidden charges at checkout.
           </p>
         </Reveal>
 
@@ -52,6 +52,9 @@ export function ServicesPreviewSection() {
                   {card.tagline}
                 </p>
                 <p className="mt-3 flex-1 text-sm text-ink/70">{card.description}</p>
+                {card.highlights?.length ? (
+                  <p className="mt-3 text-xs font-medium text-primary/80">{card.highlights[0]}</p>
+                ) : null}
                 <p className="mt-4 font-display text-2xl text-primary">
                   £{card.priceGbp}
                 </p>

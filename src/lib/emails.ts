@@ -5,7 +5,7 @@ import {
   sendTransactionalMail,
 } from "./mail-send";
 import { CONTACT, SITE_NAME, SITE_URL } from "./constants";
-import { formatGbpFromPence, serviceLabel } from "./booking-pricing";
+import { addOnLabel, formatGbpFromPence, serviceLabel } from "./booking-pricing";
 
 /** Replies go here (e.g. your Google Workspace inbox). */
 function replyToAddress(): string {
@@ -27,9 +27,14 @@ function propertyLabel(size: PropertySize): string {
 }
 
 function bookingDetailsHtml(b: Booking): string {
+  const addOnsHtml =
+    b.addOns.length > 0
+      ? `<p><strong>Add-ons:</strong> ${b.addOns.map((a) => addOnLabel(a)).join(", ")}</p>`
+      : "";
   return `
     <p><strong>Service:</strong> ${serviceLabel(b.service)}</p>
     <p><strong>Property:</strong> ${propertyLabel(b.propertySize)}</p>
+    ${addOnsHtml}
     <p><strong>Date:</strong> ${format(b.date, "EEEE, d MMMM yyyy")}</p>
     <p><strong>Time:</strong> ${b.time}</p>
     <p><strong>Postcode:</strong> ${b.postcode ?? "-"}</p>

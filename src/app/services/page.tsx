@@ -51,11 +51,18 @@ export default function ServicesPage() {
                     {card.tagline}
                   </p>
                   <p className="mt-4 text-ink/75">{card.description}</p>
+                  {card.highlights && card.highlights.length > 0 && (
+                    <ul className="mt-5 space-y-1 text-sm text-ink/80">
+                      {card.highlights.map((line) => (
+                        <li key={line}>• {line}</li>
+                      ))}
+                    </ul>
+                  )}
                   <p className="mt-6 font-display text-3xl text-primary">
                     From £{card.priceGbp}
                   </p>
                   <p className="mt-2 text-xs text-ink/50">
-                    Final price reflects property size at checkout.
+                    Final price reflects property size and selected options at checkout.
                   </p>
                   <Link
                     href={`/booking?service=${card.slug}`}

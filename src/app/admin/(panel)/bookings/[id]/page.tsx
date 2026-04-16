@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { notFound } from "next/navigation";
 import { getBookingById } from "@/lib/supabase/server";
 import { bookingFromRow } from "@/types/booking";
-import { formatGbpFromPence, serviceLabel } from "@/lib/booking-pricing";
+import { addOnLabel, formatGbpFromPence, serviceLabel } from "@/lib/booking-pricing";
 
 export const metadata: Metadata = {
   title: "Admin: Booking details",
@@ -61,6 +61,14 @@ export default async function AdminBookingDetailPage({
           <div>
             <dt className="text-xs uppercase tracking-wide text-ink/50">Property size</dt>
             <dd className="mt-1 text-ink">{sizeLabel(booking.propertySize)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-ink/50">Add-ons</dt>
+            <dd className="mt-1 text-ink">
+              {booking.addOns.length > 0
+                ? booking.addOns.map((addOn) => addOnLabel(addOn)).join(", ")
+                : "-"}
+            </dd>
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wide text-ink/50">Date</dt>

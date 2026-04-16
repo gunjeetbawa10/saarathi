@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { calculateBookingPricePence } from "@/lib/booking-pricing";
 import { applyCouponCodeToSubtotal } from "@/lib/coupon-db";
-import { PropertySizeEnum, ServiceTypeEnum } from "@/types/booking";
+import { BookingAddOnEnum, PropertySizeEnum, ServiceTypeEnum } from "@/types/booking";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +10,7 @@ const bodySchema = z.object({
   code: z.string().optional(),
   service: z.nativeEnum(ServiceTypeEnum),
   propertySize: z.nativeEnum(PropertySizeEnum),
+  addOns: z.array(z.nativeEnum(BookingAddOnEnum)).default([]),
 });
 
 export async function POST(req: Request) {
@@ -26,7 +27,8 @@ export async function POST(req: Request) {
 
     const subtotalPence = calculateBookingPricePence(
       parsed.data.service,
-      parsed.data.propertySize
+      parsed.data.propertySize,
+      parsed.data.addOns
     );
 
     const applied = await applyCouponCodeToSubtotal(parsed.data.code, subtotalPence);

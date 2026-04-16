@@ -10,7 +10,11 @@ import {
   updateBookingStripeSession,
 } from "@/lib/supabase/server";
 import { SITE_URL } from "@/lib/constants";
-import { calculateBookingPricePence, serviceLabel } from "@/lib/booking-pricing";
+import {
+  addOnLabel,
+  calculateBookingPricePence,
+  serviceLabel,
+} from "@/lib/booking-pricing";
 import { applyCouponCodeToSubtotal } from "@/lib/coupon-db";
 import {
   isKnownSlotLabel,
@@ -84,7 +88,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const subtotalPence = calculateBookingPricePence(data.service, data.propertySize);
+    const subtotalPence = calculateBookingPricePence(
+      data.service,
+      data.propertySize,
+      data.addOns
+    );
 
     const couponResult = await applyCouponCodeToSubtotal(data.couponCode, subtotalPence);
     if (!couponResult.ok) {
@@ -123,6 +131,7 @@ export async function POST(req: Request) {
       discount_pence: discountPence,
       coupon_id: couponId,
       coupon_code: couponCode,
+      add_ons: data.addOns,
     });
     const bookingModel = bookingFromRow(booking);
 
@@ -141,6 +150,9 @@ export async function POST(req: Request) {
 
     const descParts = [
       `${format(data.date, "d MMM yyyy")} · ${data.time}`,
+      data.addOns.length > 0
+        ? `Add-ons: ${data.addOns.map((addOn) => addOnLabel(addOn)).join(", ")}`
+        : null,
       discountPence > 0
         ? `Subtotal ${(subtotalPence / 100).toFixed(2)} GBP · Discount −${(discountPence / 100).toFixed(2)} GBP`
         : null,
@@ -172,6 +184,7 @@ export async function POST(req: Request) {
         subtotalPence: String(subtotalPence),
         discountPence: String(discountPence),
         couponCode: couponCode ?? "",
+        addOns: data.addOns.join(","),
       },
     });
 
