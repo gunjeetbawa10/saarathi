@@ -15,6 +15,7 @@ import {
   calculateBookingPricePence,
   serviceLabel,
 } from "@/lib/booking-pricing";
+import type { BookingAddOn } from "@/types/booking";
 import { applyCouponCodeToSubtotal } from "@/lib/coupon-db";
 import {
   isKnownSlotLabel,
@@ -151,7 +152,7 @@ export async function POST(req: Request) {
     const descParts = [
       `${format(data.date, "d MMM yyyy")} · ${data.time}`,
       data.addOns.length > 0
-        ? `Add-ons: ${data.addOns.map((addOn) => addOnLabel(addOn)).join(", ")}`
+        ? `Add-ons: ${data.addOns.map((addOn: BookingAddOn) => addOnLabel(addOn)).join(", ")}`
         : null,
       discountPence > 0
         ? `Subtotal ${(subtotalPence / 100).toFixed(2)} GBP · Discount −${(discountPence / 100).toFixed(2)} GBP`
