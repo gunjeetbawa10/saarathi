@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Fair Usage & Room Size Policy",
   description:
-    "Saarathi Services Ltd Fair Usage & Room Size Policy defining standard room measurements, open-plan charging, oversized room surcharges, and inspection re-quote rights.",
+    "Saarathi Services Ltd Fair Usage & Room Size Policy for on-site assessment, revised quotes, and your right to cancel.",
 };
 
 const effectiveDate = "15 April 2026";
@@ -34,87 +34,31 @@ export default function FairUsageRoomSizePolicyPage() {
       <section className="mx-auto max-w-5xl space-y-8 px-4 py-14 text-ink/85 md:px-6 md:py-20">
         <section className="rounded-3xl border border-primary/10 bg-white p-7 shadow-card md:p-9">
           <h2 className="font-display text-2xl text-primary">
-            1. Definition of a Standard Room
+            On-Site Assessment and Re-Quoting
           </h2>
           <p className="mt-4">
-            Our flat-rate room prices for domestic cleaning and carpet steam
-            cleaning are based on standard UK room sizes.
+            All prices quoted online or over the phone are estimates.
           </p>
           <p className="mt-4">
-            A <strong className="text-primary">Standard Room</strong> is any
-            single room measuring up to{" "}
-            <strong className="text-primary">15 square metres</strong> (approx.
-            160 square feet).
+            Upon arrival at your property, our team will conduct a visual
+            assessment. If your property layout requires additional time, labour,
+            or cleaning materials, the team member will inform you of the
+            necessary extra charges before beginning the service.
           </p>
         </section>
 
         <section className="rounded-3xl border border-primary/10 bg-white p-7 shadow-card md:p-9">
           <h2 className="font-display text-2xl text-primary">
-            2. Open-Plan Spaces
+            Your Right to Cancel
           </h2>
           <p className="mt-4">
-            Open-plan living spaces (for example a combined lounge/diner or
-            kitchen/living area) are not treated as a single room.
+            You are under no obligation to accept the revised price. If you
+            agree to the new quote, we will proceed immediately.
           </p>
           <p className="mt-4">
-            These spaces are assessed by total square meterage and are typically
-            charged as two or more standard rooms depending on size.
-          </p>
-        </section>
-
-        <section className="rounded-3xl border border-primary/10 bg-white p-7 shadow-card md:p-9">
-          <h2 className="font-display text-2xl text-primary">
-            3. Oversized Rooms and Additional Charges
-          </h2>
-          <p className="mt-4">
-            If a room exceeds the 15-square-metre limit (for example large
-            master suites, converted lofts, or extended living rooms), Saarathi
-            Services may apply an oversized-room surcharge.
-          </p>
-          <p className="mt-4">
-            Rooms significantly larger than the standard limit may be counted as
-            two rooms for booking and billing purposes.
-          </p>
-        </section>
-
-        <section className="rounded-3xl border border-primary/10 bg-white p-7 shadow-card md:p-9">
-          <h2 className="font-display text-2xl text-primary">
-            4. Hallways, Stairs, and Landings
-          </h2>
-          <ul className="mt-4 list-disc space-y-2 pl-6">
-            <li>
-              Standard hallways (up to 5 metres in length) are charged at our
-              standard hallway rate.
-            </li>
-            <li>
-              A standard staircase is defined as a single flight of up to 14
-              steps.
-            </li>
-            <li>
-              Additional steps or multiple landings may incur supplementary
-              charges.
-            </li>
-          </ul>
-        </section>
-
-        <section className="rounded-3xl border border-primary/10 bg-white p-7 shadow-card md:p-9">
-          <h2 className="font-display text-2xl text-primary">
-            5. Right to Re-Quote Upon Inspection
-          </h2>
-          <p className="mt-4">
-            All phone, online, and text estimates are subject to visual
-            inspection at the property.
-          </p>
-          <p className="mt-4">
-            On arrival, our technicians assess area size and condition. If rooms
-            are significantly larger than the Standard Room definition, or if
-            conditions require extraordinary time and resources, Saarathi
-            Services reserves the right to issue a revised binding quote before
-            work starts.
-          </p>
-          <p className="mt-4">
-            You are under no obligation to accept the revised quote. If declined,
-            no work will proceed beyond inspection.
+            If you do not agree, we will cancel the service and issue a full
+            refund of any money paid upfront, with no cancellation penalties
+            applied.
           </p>
         </section>
       </section>

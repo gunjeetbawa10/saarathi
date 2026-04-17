@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { BookingForm } from "@/components/booking/BookingForm";
 import { SLUG_TO_SERVICE, type ServiceSlug } from "@/lib/services-catalog";
 import { Reveal } from "@/components/motion/Reveal";
@@ -44,6 +45,16 @@ export default function BookingPage({
         </div>
       </section>
       <section className="mx-auto max-w-6xl px-4 py-12 md:px-6 md:py-16">
+        <p className="mb-5 text-sm text-ink/65">
+          Please review our{" "}
+          <Link
+            href="/fair-usage-room-size-policy"
+            className="font-medium text-primary hover:underline"
+          >
+            Fair Usage &amp; Room Size Policy
+          </Link>{" "}
+          before booking, especially for large or oversized rooms.
+        </p>
         <BookingForm defaultService={defaultService} />
       </section>
     </div>
