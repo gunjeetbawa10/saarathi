@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { SignUp } from "@clerk/nextjs";
 import { Reveal } from "@/components/motion/Reveal";
-import { SignUpWithTermsGate } from "@/components/auth/SignUpWithTermsGate";
 
 export const metadata: Metadata = {
   title: "Create account",
@@ -19,7 +19,16 @@ export default function SignUpPage() {
         </div>
       </section>
       <div className="flex justify-center px-4 py-12 md:py-16">
-        <SignUpWithTermsGate />
+        <SignUp
+          appearance={{
+            elements: {
+              rootBox: "mx-auto",
+              card: "shadow-card border border-primary/10 bg-white",
+            },
+          }}
+          signInUrl="/sign-in"
+          fallbackRedirectUrl="/"
+        />
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export const CONTACT = {
   phone: "+447375575049",
   phoneDisplay: "+44 7375 575049",
   email: "info@saarathiservices.co.uk",
-  location: "Bangor LL57, UK",
+  location: "LL61 6YG, Anglesey, Wales, UK",
 } as const;
 
 /** Footer social links (override TikTok via env if needed). */

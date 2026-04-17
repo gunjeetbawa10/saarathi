@@ -11,7 +11,11 @@ export function partitionUpcomingAndPast(bookings: Booking[]): {
   const past: Booking[] = [];
 
   for (const b of bookings) {
-    if (isBefore(b.date, todayStart)) {
+    if (
+      b.paymentStatus === "cancelled" ||
+      b.paymentStatus === "failed" ||
+      isBefore(b.date, todayStart)
+    ) {
       past.push(b);
     } else {
       upcoming.push(b);

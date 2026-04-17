@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { getBookingById } from "@/lib/supabase/server";
 import { bookingFromRow } from "@/types/booking";
 import { addOnLabel, formatGbpFromPence, serviceLabel } from "@/lib/booking-pricing";
+import { CancelBookingButton } from "@/components/booking/CancelBookingButton";
 
 export const metadata: Metadata = {
   title: "Booking details",
@@ -25,6 +26,7 @@ function sizeLabel(s: string) {
 function statusBadgeClass(status: string) {
   if (status === "paid") return "bg-primary/10 text-primary";
   if (status === "failed") return "bg-red-100 text-red-900";
+  if (status === "cancelled") return "bg-slate-200 text-slate-700";
   return "bg-amber-100 text-amber-900";
 }
 
@@ -110,7 +112,10 @@ export default async function AccountBookingDetailPage({
           {booking.notes && <p className="mt-3 text-sm text-ink/70">Notes: {booking.notes}</p>}
         </div>
 
-        <div className="mt-8">
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          {(booking.paymentStatus === "pending" || booking.paymentStatus === "paid") && (
+            <CancelBookingButton bookingId={booking.id} />
+          )}
           <Link href="/account/bookings" className="text-sm font-semibold text-primary hover:underline">
             Back to all bookings
           </Link>

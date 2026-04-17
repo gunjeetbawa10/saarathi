@@ -140,7 +140,7 @@ export async function listBookingsDesc(limit: number): Promise<BookingRow[]> {
   return (data ?? []) as BookingRow[];
 }
 
-/** Bookings whose appointment `date` falls on this calendar day in Europe/London. Excludes failed payments (slot released). */
+/** Bookings whose appointment `date` falls on this calendar day in Europe/London. */
 export async function listBookingsOnLocalCalendarDay(
   ymd: string
 ): Promise<BookingRow[]> {
@@ -152,10 +152,25 @@ export async function listBookingsOnLocalCalendarDay(
     .select("*")
     .gte("date", start.toISOString())
     .lte("date", end.toISOString())
-    .neq("payment_status", "failed");
+    .in("payment_status", ["pending", "paid"]);
 
   if (error) throw error;
   return (data ?? []) as BookingRow[];
+}
+
+/** Marks a booking as cancelled if it is still active. */
+export async function cancelBookingById(bookingId: string): Promise<BookingRow | null> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("bookings")
+    .update({ payment_status: "cancelled" })
+    .eq("id", bookingId)
+    .in("payment_status", ["pending", "paid"])
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? (data as BookingRow) : null;
 }
 
 /** Bookings for a Clerk user (appointment date ordering is applied in the app). */

@@ -32,6 +32,7 @@ export const PaymentStatusEnum = {
   pending: "pending",
   paid: "paid",
   failed: "failed",
+  cancelled: "cancelled",
 } as const;
 
 export type PaymentStatus = (typeof PaymentStatusEnum)[keyof typeof PaymentStatusEnum];

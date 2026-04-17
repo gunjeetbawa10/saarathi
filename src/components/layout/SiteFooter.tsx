@@ -60,14 +60,6 @@ export function SiteFooter() {
             </li>
             <li>
               <Link
-                href="/terms-and-conditions"
-                className="text-white/85 hover:text-accent"
-              >
-                Terms &amp; Conditions
-              </Link>
-            </li>
-            <li>
-              <Link
                 href="/privacy-policy"
                 className="text-white/85 hover:text-accent"
               >

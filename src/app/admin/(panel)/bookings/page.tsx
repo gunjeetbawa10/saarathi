@@ -7,6 +7,7 @@ import { formatGbpFromPence, serviceLabel } from "@/lib/booking-pricing";
 import { listRecentCheckoutSessions } from "@/lib/admin-stripe";
 import { syncBookingPaymentFromCheckoutSession } from "@/lib/booking-payment-sync";
 import { AdminBookingsCalendar } from "@/components/admin/AdminBookingsCalendar";
+import { CancelBookingButton } from "@/components/booking/CancelBookingButton";
 
 export const metadata: Metadata = {
   title: "Admin: Bookings",
@@ -113,7 +114,7 @@ export default async function AdminBookingsPage() {
               <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3">Coupon</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Details</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -155,19 +156,31 @@ export default async function AdminBookingsPage() {
                     className={
                       b.paymentStatus === "paid"
                         ? "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary"
-                        : "rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900"
+                        : b.paymentStatus === "failed"
+                          ? "rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-900"
+                          : b.paymentStatus === "cancelled"
+                            ? "rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700"
+                            : "rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900"
                     }
                   >
                     {b.paymentStatus}
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/bookings/${b.id}`}
-                    className="text-xs font-semibold text-primary hover:underline"
-                  >
-                    View
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/admin/bookings/${b.id}`}
+                      className="text-xs font-semibold text-primary hover:underline"
+                    >
+                      View
+                    </Link>
+                    {(b.paymentStatus === "pending" || b.paymentStatus === "paid") && (
+                      <CancelBookingButton
+                        bookingId={b.id}
+                        className="rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50"
+                      />
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import type { Booking } from "@/types/booking";
 import { formatGbpFromPence, serviceLabel } from "@/lib/booking-pricing";
+import { CancelBookingButton } from "@/components/booking/CancelBookingButton";
 
 function sizeLabel(s: string) {
   const m: Record<string, string> = {
@@ -22,12 +23,18 @@ function StatusBadge({ status }: { status: Booking["paymentStatus"] }) {
           ? "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary"
           : status === "failed"
             ? "rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-900"
+            : status === "cancelled"
+              ? "rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700"
             : "rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900"
       }
     >
       {status}
     </span>
   );
+}
+
+function canCancel(status: Booking["paymentStatus"]): boolean {
+  return status === "pending" || status === "paid";
 }
 
 export function MyBookingsTable({
@@ -55,7 +62,7 @@ export function MyBookingsTable({
             <th className="px-4 py-3">Address</th>
             <th className="px-4 py-3">Price</th>
             <th className="px-4 py-3">Payment</th>
-            <th className="px-4 py-3">Details</th>
+            <th className="px-4 py-3">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -80,12 +87,20 @@ export function MyBookingsTable({
                 <StatusBadge status={b.paymentStatus} />
               </td>
               <td className="px-4 py-3">
-                <Link
-                  href={`/account/bookings/${b.id}`}
-                  className="text-xs font-semibold text-primary hover:underline"
-                >
-                  View
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/account/bookings/${b.id}`}
+                    className="text-xs font-semibold text-primary hover:underline"
+                  >
+                    View
+                  </Link>
+                  {canCancel(b.paymentStatus) && (
+                    <CancelBookingButton
+                      bookingId={b.id}
+                      className="rounded-full border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50"
+                    />
+                  )}
+                </div>
               </td>
             </tr>
           ))}
