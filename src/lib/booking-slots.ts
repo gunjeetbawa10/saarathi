@@ -1,5 +1,5 @@
 import type { BookingRow } from "@/types/booking";
-import { fromZonedTime } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 
 /**
  * Fixed daily visit windows. Each label is when the team is at the property
@@ -51,6 +51,9 @@ export function parseSlotStartKey(time: string): string | null {
 
 const ALL_LABELS = generateAllSlotLabels();
 const ALL_LABEL_SET = new Set(ALL_LABELS);
+const KNOWN_SLOT_START_KEYS = new Set(
+  BOOKING_SLOT_START_HOURS.map((h) => `${PAD(h)}:00`)
+);
 
 export function isKnownSlotLabel(time: string): boolean {
   return ALL_LABEL_SET.has(time.trim());
@@ -68,7 +71,20 @@ export function occupiedSlotStartKeysFromBookings(rows: BookingRow[]): Set<strin
   const s = new Set<string>();
   for (const r of rows) {
     const k = parseSlotStartKey(r.time);
-    if (k) s.add(k);
+    if (k) {
+      s.add(k);
+      continue;
+    }
+
+    // Legacy fallback: some historical rows may not store slot labels in `time`.
+    // Try deriving start key from booking timestamp in Europe/London.
+    const d = new Date(r.date);
+    if (!Number.isNaN(d.getTime())) {
+      const derived = formatInTimeZone(d, "Europe/London", "HH:mm");
+      if (KNOWN_SLOT_START_KEYS.has(derived)) {
+        s.add(derived);
+      }
+    }
   }
   return s;
 }
