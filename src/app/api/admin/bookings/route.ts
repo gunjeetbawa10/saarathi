@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { z } from "zod";
 import { getAdminSession } from "@/lib/admin-session";
 import {
@@ -89,6 +89,11 @@ export async function POST(req: Request) {
       );
     }
 
+    const slotStartUtcIso = fromZonedTime(
+      `${ymd}T${key ?? "12:00"}:00`,
+      BOOKING_TZ
+    ).toISOString();
+
     const subtotalPence = calculateBookingPricePence(
       data.service,
       data.propertySize,
@@ -109,7 +114,7 @@ export async function POST(req: Request) {
     const booking = await insertBooking({
       service: data.service,
       property_size: data.propertySize,
-      date: data.date.toISOString(),
+      date: slotStartUtcIso,
       time: data.time,
       name: data.name,
       email: normalizedEmail,

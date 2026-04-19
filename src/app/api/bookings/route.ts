@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { format } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { syncClerkUserToSupabase } from "@/lib/clerk-customer-sync";
 import { getStripe } from "@/lib/stripe";
@@ -107,6 +107,11 @@ export async function POST(req: Request) {
       );
     }
 
+    const slotStartUtcIso = fromZonedTime(
+      `${ymd}T${key ?? "12:00"}:00`,
+      BOOKING_TZ
+    ).toISOString();
+
     const subtotalPence = calculateBookingPricePence(
       data.service,
       data.propertySize,
@@ -135,7 +140,7 @@ export async function POST(req: Request) {
     const booking = await insertBooking({
       service: data.service,
       property_size: data.propertySize,
-      date: data.date.toISOString(),
+      date: slotStartUtcIso,
       time: data.time,
       name: data.name,
       email: normalizedEmail,
