@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/Button";
 import { syncBookingPaymentFromCheckoutSession } from "@/lib/booking-payment-sync";
+import {
+  sendBookingConfirmedToCustomer,
+  sendNewBookingToAdmin,
+} from "@/lib/emails";
 
 export const metadata: Metadata = {
   title: "Booking confirmed",
@@ -17,6 +21,18 @@ export default async function BookingSuccessPage({
     try {
       const sync = await syncBookingPaymentFromCheckoutSession(searchParams.session_id);
       if (sync.changed) {
+        if (sync.booking) {
+          try {
+            await sendBookingConfirmedToCustomer(sync.booking);
+          } catch (e) {
+            console.error("[booking/success] customer email failed", e);
+          }
+          try {
+            await sendNewBookingToAdmin(sync.booking);
+          } catch (e) {
+            console.error("[booking/success] admin email failed", e);
+          }
+        }
         paymentSyncMessage = "Payment status synced successfully.";
       }
     } catch (e) {
