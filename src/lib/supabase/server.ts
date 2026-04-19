@@ -91,28 +91,34 @@ export async function insertBooking(data: InsertBookingInput): Promise<BookingRo
     add_ons: data.add_ons ?? [],
   };
 
-  const { data: row, error } = await supabase
-    .from("bookings")
-    .insert(payload)
-    .select()
-    .single();
+  const missingColumns = new Set<"postcode" | "add_ons">();
 
-  if (error) {
-    if (isMissingColumnError(error, "bookings", "postcode")) {
-      const { postcode, ...fallbackPayload } = payload;
-      void postcode;
-      const { data: retryRow, error: retryError } = await supabase
-        .from("bookings")
-        .insert(fallbackPayload)
-        .select()
-        .single();
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const attemptPayload: Record<string, unknown> = { ...payload };
+    if (missingColumns.has("postcode")) delete attemptPayload.postcode;
+    if (missingColumns.has("add_ons")) delete attemptPayload.add_ons;
 
-      if (retryError) throw retryError;
-      return retryRow as BookingRow;
+    const { data: row, error } = await supabase
+      .from("bookings")
+      .insert(attemptPayload)
+      .select()
+      .single();
+
+    if (!error) return row as BookingRow;
+
+    let retried = false;
+    if (!missingColumns.has("postcode") && isMissingColumnError(error, "bookings", "postcode")) {
+      missingColumns.add("postcode");
+      retried = true;
     }
-    throw error;
+    if (!missingColumns.has("add_ons") && isMissingColumnError(error, "bookings", "add_ons")) {
+      missingColumns.add("add_ons");
+      retried = true;
+    }
+    if (!retried) throw error;
   }
-  return row as BookingRow;
+
+  throw new Error("Could not insert booking.");
 }
 
 export async function updateBookingStripeSession(
