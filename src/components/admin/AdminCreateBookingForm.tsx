@@ -37,6 +37,12 @@ const addOnChoices: {
   { value: "EXTRA_BATHROOM", label: "Extra Toilet/Bathroom", priceLabel: "+£20" },
   { value: "MICROWAVE_INTERNAL", label: "Microwave (Internal)", priceLabel: "+£10" },
   { value: "INTERIOR_WINDOWS", label: "Interior Windows", priceLabel: "From +£20" },
+  { value: "CARPET_DEEP_CLEAN", label: "Deep Clean Carpet", priceLabel: "From +£30" },
+  {
+    value: "PET_HOUSE_SINGLE_ROOM_DEEP_CLEAN",
+    label: "Pet House Deep Clean (Single Room)",
+    priceLabel: "From +£100",
+  },
 ];
 
 type PaymentStatusInput = "pending" | "paid";

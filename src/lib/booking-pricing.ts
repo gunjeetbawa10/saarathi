@@ -20,6 +20,8 @@ const EXTRA_ADDON_PRICES: Record<BookingAddOn, number> = {
   EXTRA_BATHROOM: 2000,
   MICROWAVE_INTERNAL: 1000,
   INTERIOR_WINDOWS: 2000,
+  CARPET_DEEP_CLEAN: 3000,
+  PET_HOUSE_SINGLE_ROOM_DEEP_CLEAN: 10000,
 };
 
 const EXTRA_ADDON_LABELS: Record<BookingAddOn, string> = {
@@ -28,6 +30,8 @@ const EXTRA_ADDON_LABELS: Record<BookingAddOn, string> = {
   EXTRA_BATHROOM: "Extra Toilet/Bathroom",
   MICROWAVE_INTERNAL: "Microwave (Internal)",
   INTERIOR_WINDOWS: "Interior Windows",
+  CARPET_DEEP_CLEAN: "Deep Clean Carpet",
+  PET_HOUSE_SINGLE_ROOM_DEEP_CLEAN: "Pet House Deep Clean (Single Room)",
 };
 
 /** Returns total price in pence (Stripe integer units). */

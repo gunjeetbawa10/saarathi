@@ -24,6 +24,8 @@ export const BookingAddOnEnum = {
   EXTRA_BATHROOM: "EXTRA_BATHROOM",
   MICROWAVE_INTERNAL: "MICROWAVE_INTERNAL",
   INTERIOR_WINDOWS: "INTERIOR_WINDOWS",
+  CARPET_DEEP_CLEAN: "CARPET_DEEP_CLEAN",
+  PET_HOUSE_SINGLE_ROOM_DEEP_CLEAN: "PET_HOUSE_SINGLE_ROOM_DEEP_CLEAN",
 } as const;
 
 export type BookingAddOn = (typeof BookingAddOnEnum)[keyof typeof BookingAddOnEnum];

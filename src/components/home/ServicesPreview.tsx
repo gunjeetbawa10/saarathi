@@ -6,7 +6,13 @@ import { motion } from "framer-motion";
 import { SERVICE_CARDS } from "@/lib/services-catalog";
 import { Reveal } from "@/components/motion/Reveal";
 
+const HOME_SERVICE_ORDER = ["airbnb", "standard", "office", "deep-clean"] as const;
+
 export function ServicesPreviewSection() {
+  const orderedCards = HOME_SERVICE_ORDER.map(
+    (slug) => SERVICE_CARDS.find((card) => card.slug === slug)!
+  );
+
   return (
     <section className="bg-cream px-4 py-20 md:px-6 md:py-28">
       <div className="mx-auto max-w-6xl">
@@ -27,7 +33,7 @@ export function ServicesPreviewSection() {
         </Reveal>
 
         <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {SERVICE_CARDS.map((card, i) => (
+          {orderedCards.map((card, i) => (
             <motion.article
               key={card.slug}
               initial={{ opacity: 0, y: 16 }}

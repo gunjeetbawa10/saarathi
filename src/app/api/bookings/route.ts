@@ -182,7 +182,11 @@ export async function POST(req: Request) {
 
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
+      customer_creation: "always",
       customer_email: normalizedEmail,
+      invoice_creation: {
+        enabled: true,
+      },
       line_items: [
         {
           price_data: {
@@ -204,6 +208,9 @@ export async function POST(req: Request) {
         discountPence: String(discountPence),
         couponCode: couponCode ?? "",
         addOns: data.addOns.join(","),
+      },
+      payment_intent_data: {
+        receipt_email: normalizedEmail,
       },
     });
 

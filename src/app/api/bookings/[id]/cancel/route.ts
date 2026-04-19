@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { getAdminSession } from "@/lib/admin-session";
 import { cancelBookingById, getBookingById } from "@/lib/supabase/server";
+import { getStripe } from "@/lib/stripe";
 
 function isAllowedForUser(
   booking: { clerk_user_id: string | null; email: string },
@@ -45,6 +46,44 @@ export async function POST(
 
     if (booking.payment_status === "cancelled") {
       return NextResponse.json({ ok: true, status: "cancelled" });
+    }
+
+    if (booking.payment_status === "paid" && booking.stripe_session_id) {
+      try {
+        const session = await getStripe().checkout.sessions.retrieve(
+          booking.stripe_session_id
+        );
+        const paymentIntentId =
+          typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : session.payment_intent?.id;
+
+        if (!paymentIntentId) {
+          return NextResponse.json(
+            { error: "Could not locate Stripe payment to refund." },
+            { status: 409 }
+          );
+        }
+
+        const existingRefunds = await getStripe().refunds.list({
+          payment_intent: paymentIntentId,
+          limit: 1,
+        });
+
+        if (existingRefunds.data.length === 0) {
+          await getStripe().refunds.create({
+            payment_intent: paymentIntentId,
+            reason: "requested_by_customer",
+            metadata: { bookingId: booking.id },
+          });
+        }
+      } catch (e) {
+        console.error("[api/bookings/:id/cancel] refund failed", e);
+        return NextResponse.json(
+          { error: "Could not process Stripe refund for this booking." },
+          { status: 502 }
+        );
+      }
     }
 
     const cancelled = await cancelBookingById(params.id);
