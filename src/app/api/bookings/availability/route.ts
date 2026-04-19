@@ -3,13 +3,16 @@ import { z } from "zod";
 import {
   availableSlotLabels,
   BOOKING_BLOCK_MINUTES,
+  BOOKING_MIN_PREP_LEAD_MINUTES,
   BOOKING_TRAVEL_MINUTES,
   BOOKING_WORK_MINUTES,
+  isSlotStartTooSoonForYmd,
   occupiedSlotStartKeysFromBookings,
 } from "@/lib/booking-slots";
 import { listBookingsOnLocalCalendarDay } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+const BOOKING_TZ = "Europe/London";
 
 const querySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD"),
@@ -32,7 +35,15 @@ export async function GET(req: Request) {
   try {
     const rows = await listBookingsOnLocalCalendarDay(parsed.data.date);
     const occupied = occupiedSlotStartKeysFromBookings(rows);
-    const slots = availableSlotLabels(occupied);
+    const slots = availableSlotLabels(occupied).filter(
+      (slot) =>
+        !isSlotStartTooSoonForYmd(
+          parsed.data.date,
+          slot,
+          BOOKING_MIN_PREP_LEAD_MINUTES,
+          BOOKING_TZ
+        )
+    );
     return NextResponse.json({
       slots,
       blockMinutes: BOOKING_BLOCK_MINUTES,

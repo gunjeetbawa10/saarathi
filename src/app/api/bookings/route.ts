@@ -18,7 +18,9 @@ import {
 import type { BookingAddOn } from "@/types/booking";
 import { applyCouponCodeToSubtotal } from "@/lib/coupon-db";
 import {
+  BOOKING_MIN_PREP_LEAD_MINUTES,
   isKnownSlotLabel,
+  isSlotStartTooSoonForYmd,
   occupiedSlotStartKeysFromBookings,
   parseSlotStartKey,
 } from "@/lib/booking-slots";
@@ -79,6 +81,22 @@ export async function POST(req: Request) {
     const dayRows = await listBookingsOnLocalCalendarDay(ymd);
     const occupied = occupiedSlotStartKeysFromBookings(dayRows);
     const key = parseSlotStartKey(data.time);
+    if (
+      isSlotStartTooSoonForYmd(
+        ymd,
+        data.time,
+        BOOKING_MIN_PREP_LEAD_MINUTES,
+        BOOKING_TZ
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "That slot is no longer available. We need at least 1 hour notice before slot start.",
+        },
+        { status: 400 }
+      );
+    }
     if (key && occupied.has(key)) {
       return NextResponse.json(
         {

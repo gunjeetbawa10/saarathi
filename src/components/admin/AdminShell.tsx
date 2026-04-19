@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 const nav = [
   { href: "/admin/dashboard", label: "Overview" },
   { href: "/admin/bookings", label: "Bookings" },
+  { href: "/admin/bookings/new", label: "Create booking" },
   { href: "/admin/customers", label: "Customers" },
   { href: "/admin/transactions", label: "Payments" },
   { href: "/admin/coupons", label: "Coupons" },

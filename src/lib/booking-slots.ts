@@ -1,4 +1,5 @@
 import type { BookingRow } from "@/types/booking";
+import { fromZonedTime } from "date-fns-tz";
 
 /**
  * Fixed daily visit windows. Each label is when the team is at the property
@@ -19,6 +20,8 @@ export const BOOKING_TRAVEL_MINUTES = 0;
 
 /** Total reserved window per slot (for API). */
 export const BOOKING_BLOCK_MINUTES = BOOKING_SLOT_DURATION_MINUTES;
+/** Minimum lead time required before a slot starts. */
+export const BOOKING_MIN_PREP_LEAD_MINUTES = 60;
 
 const PAD = (n: number) => String(n).padStart(2, "0");
 
@@ -68,4 +71,32 @@ export function occupiedSlotStartKeysFromBookings(rows: BookingRow[]): Set<strin
     if (k) s.add(k);
   }
   return s;
+}
+
+/**
+ * Returns true when a slot start datetime has already passed in the given timezone.
+ * `ymd` must be in YYYY-MM-DD format and `slotLabel` like "08:00 - 08:30".
+ */
+export function isSlotStartInPastForYmd(
+  ymd: string,
+  slotLabel: string,
+  timeZone = "Europe/London",
+  now = new Date()
+): boolean {
+  return isSlotStartTooSoonForYmd(ymd, slotLabel, 0, timeZone, now);
+}
+
+/** Returns true when a slot starts too soon for the required lead time. */
+export function isSlotStartTooSoonForYmd(
+  ymd: string,
+  slotLabel: string,
+  minLeadMinutes: number,
+  timeZone = "Europe/London",
+  now = new Date()
+): boolean {
+  const key = parseSlotStartKey(slotLabel);
+  if (!key) return true;
+  const slotStart = fromZonedTime(`${ymd}T${key}:00`, timeZone);
+  const minAllowedMs = slotStart.getTime() - minLeadMinutes * 60 * 1000;
+  return now.getTime() >= minAllowedMs;
 }

@@ -79,10 +79,20 @@ export default async function AdminBookingsPage() {
 
   return (
     <div className="px-4 py-10 md:px-8">
-      <h1 className="font-display text-3xl text-primary">Bookings</h1>
-      <p className="mt-2 text-sm text-ink/60">
-        Hidden route. Do not link from public navigation.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl text-primary">Bookings</h1>
+          <p className="mt-2 text-sm text-ink/60">
+            Hidden route. Do not link from public navigation.
+          </p>
+        </div>
+        <Link
+          href="/admin/bookings/new"
+          className="rounded-full border border-primary/20 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/5"
+        >
+          Create booking
+        </Link>
+      </div>
       {bookingsError && (
         <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Could not load bookings from Supabase. Check{" "}
