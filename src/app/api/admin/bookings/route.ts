@@ -25,9 +25,11 @@ const BOOKING_TZ = "Europe/London";
 
 export const dynamic = "force-dynamic";
 
-const adminCreateBookingSchema = bookingApiSchema.extend({
-  paymentStatus: z.enum(["pending", "paid"]).default("pending"),
-});
+const adminCreateBookingSchema = bookingApiSchema.and(
+  z.object({
+    paymentStatus: z.enum(["pending", "paid"]).default("pending"),
+  })
+);
 
 export async function POST(req: Request) {
   const session = await getAdminSession();
