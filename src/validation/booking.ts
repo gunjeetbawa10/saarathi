@@ -1,6 +1,8 @@
 import { z } from "zod";
-import { startOfDay } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { BookingAddOnEnum, PropertySizeEnum, ServiceTypeEnum } from "@/types/booking";
+
+const BOOKING_TZ = "Europe/London";
 
 const baseFields = {
   service: z.nativeEnum(ServiceTypeEnum),
@@ -25,7 +27,11 @@ const baseFields = {
 function futureDateRefine<T extends z.ZodTypeAny>(schema: T) {
   return schema.superRefine((data, ctx) => {
     const d = (data as { date: Date }).date;
-    if (d && startOfDay(d) < startOfDay(new Date())) {
+    if (!d || Number.isNaN(d.getTime())) return;
+
+    const selectedYmd = formatInTimeZone(d, BOOKING_TZ, "yyyy-MM-dd");
+    const todayYmd = formatInTimeZone(new Date(), BOOKING_TZ, "yyyy-MM-dd");
+    if (selectedYmd < todayYmd) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Date must be today or in the future",
